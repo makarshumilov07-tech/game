@@ -2,8 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, orientation: portrait">
-  <title>Flappy Road · Верх и низ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Flappy Road · Полный экран + Жизни</title>
   <style>
     * {
       margin: 0;
@@ -12,95 +14,128 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: #0d1117;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
       font-family: 'Segoe UI', system-ui, sans-serif;
-      padding: 8px;
-      margin: 0;
+      touch-action: manipulation;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    .game-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d1117;
     }
     .game-container {
-      background: linear-gradient(165deg, #1a2332, #0a0f18);
-      border-radius: 28px;
-      padding: 12px;
-      box-shadow: 0 20px 35px rgba(0,0,0,0.8);
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      max-width: 420px;
-      width: 100%;
+      justify-content: center;
+      background: linear-gradient(165deg, #1a2332, #0a0f18);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      position: relative;
     }
     canvas {
       display: block;
-      width: 100%;
-      height: auto;
-      max-width: 400px;
-      aspect-ratio: 400 / 600;
-      border-radius: 20px;
+      border-radius: 12px;
       background: #0f1822;
-      box-shadow: inset 0 0 30px #00000080;
+      box-shadow: inset 0 0 30px #00000080, 0 0 40px rgba(0,0,0,0.5);
       touch-action: none;
     }
     .top-bar {
       width: 100%;
+      max-width: 500px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 8px 4px;
-      padding: 0 8px;
+      padding: 4px 8px;
       gap: 6px;
+      pointer-events: auto;
     }
     .hearts {
-      font-size: 1.2rem;
-      letter-spacing: 3px;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .buy-life-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.6rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .buy-life-btn:active {
+      background: #c0392b;
     }
     .coins-display {
       background: #f0a04b;
       color: #161c28;
-      padding: 6px 16px;
+      padding: 5px 12px;
       border-radius: 30px;
       font-weight: 800;
       box-shadow: 0 0 12px #ff9933;
       display: flex;
       align-items: center;
       gap: 4px;
+      font-size: clamp(0.75rem, 1.8vw, 0.9rem);
     }
     .difficulty-badge {
-      background: #27ae60;
       color: white;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: clamp(0.6rem, 1.5vw, 0.7rem);
       font-weight: bold;
+      white-space: nowrap;
     }
     .controls {
+      width: 100%;
+      max-width: 500px;
       display: flex;
-      gap: 10px;
-      margin: 6px 0;
-      flex-wrap: wrap;
+      gap: 6px;
+      padding: 4px 8px;
       justify-content: center;
+      pointer-events: auto;
     }
     .ctrl-btn {
       background: linear-gradient(180deg, #3f4868 0%, #1e2238 100%);
       border: none;
       color: white;
       font-weight: bold;
-      font-size: 0.95rem;
-      padding: 12px 18px;
+      font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+      padding: clamp(10px, 2vh, 14px) clamp(10px, 3vw, 16px);
       border-radius: 40px;
-      box-shadow: 0 5px 0 #0b0d15;
+      box-shadow: 0 4px 0 #0b0d15;
       cursor: pointer;
       touch-action: manipulation;
       transition: 0.06s;
       text-transform: uppercase;
+      flex: 1;
+      min-width: 50px;
+      max-width: 100px;
+      -webkit-tap-highlight-color: transparent;
+      letter-spacing: 0.5px;
     }
     .ctrl-btn:active {
       transform: translateY(3px);
-      box-shadow: 0 2px 0 #0b0d15;
+      box-shadow: 0 1px 0 #0b0d15;
     }
     .restart-btn {
       background: linear-gradient(180deg, #c94b4b, #701e1e);
@@ -109,16 +144,26 @@
       background: linear-gradient(180deg, #f39c12, #d68910);
       color: #1a1a2e;
     }
+    .life-btn {
+      background: linear-gradient(180deg, #e74c3c, #a93226);
+      color: white;
+      max-width: 80px;
+    }
     .shop-panel {
       display: none;
-      width: 100%;
+      width: 90%;
+      max-width: 400px;
       background: #1e2a3a;
       border-radius: 16px;
       padding: 12px;
-      margin-top: 6px;
-      box-shadow: inset 0 0 15px #00000060;
-      max-height: 300px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      max-height: 50vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      pointer-events: auto;
+      position: absolute;
+      bottom: 80px;
+      z-index: 10;
     }
     .shop-panel.active {
       display: block;
@@ -126,24 +171,34 @@
     .shop-title {
       color: #f7da6c;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: clamp(0.9rem, 2vw, 1rem);
       margin-bottom: 8px;
       text-align: center;
+    }
+    .shop-section {
+      margin-bottom: 12px;
+    }
+    .shop-section-title {
+      color: #aaa;
+      font-size: 0.7rem;
+      margin-bottom: 6px;
+      padding-left: 4px;
     }
     .skin-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
     .skin-card {
       background: #232d3d;
       border-radius: 12px;
-      padding: 10px 8px;
+      padding: 8px 4px;
       text-align: center;
       cursor: pointer;
       border: 2px solid transparent;
       transition: 0.2s;
       position: relative;
+      -webkit-tap-highlight-color: transparent;
     }
     .skin-card.selected {
       border-color: #f7da6c;
@@ -154,41 +209,87 @@
       opacity: 0.7;
     }
     .skin-preview {
-      width: 50px;
-      height: 50px;
-      margin: 0 auto 6px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 4px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 1.6rem;
     }
     .skin-name {
       color: #ddd;
-      font-size: 0.7rem;
-      margin: 4px 0;
+      font-size: clamp(0.55rem, 1.3vw, 0.65rem);
+      margin: 2px 0;
       font-weight: bold;
     }
     .skin-price {
       color: #f0a04b;
       font-weight: bold;
-      font-size: 0.75rem;
+      font-size: clamp(0.6rem, 1.4vw, 0.7rem);
     }
     .skin-owned {
       color: #27ae60;
       font-weight: bold;
-      font-size: 0.7rem;
+      font-size: clamp(0.55rem, 1.3vw, 0.65rem);
     }
     .vip-badge {
       position: absolute;
-      top: -5px;
-      right: -5px;
+      top: -4px;
+      right: -4px;
       background: #ffd700;
       color: #1a1a2e;
-      border-radius: 10px;
-      padding: 2px 6px;
-      font-size: 0.6rem;
+      border-radius: 8px;
+      padding: 1px 5px;
+      font-size: 0.5rem;
       font-weight: bold;
+    }
+    .upgrade-item {
+      background: #232d3d;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .upgrade-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .upgrade-emoji {
+      font-size: 1.5rem;
+    }
+    .upgrade-name {
+      color: #ddd;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+    .upgrade-desc {
+      color: #999;
+      font-size: 0.6rem;
+    }
+    .upgrade-buy-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.7rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .upgrade-buy-btn:active {
+      background: #c0392b;
+    }
+    .upgrade-owned {
+      color: #27ae60;
+      font-weight: bold;
+      font-size: 0.7rem;
     }
     .close-shop {
       background: #c94b4b;
@@ -197,64 +298,141 @@
       padding: 8px 20px;
       border-radius: 20px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 8px;
       font-weight: bold;
       display: block;
       margin-left: auto;
       margin-right: auto;
+      font-size: clamp(0.7rem, 1.6vw, 0.85rem);
+      -webkit-tap-highlight-color: transparent;
     }
-    .hint-text {
-      color: #9aa0c0;
-      font-size: 0.65rem;
+    .orientation-hint {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ffffff60;
+      font-size: 0.6rem;
+      pointer-events: none;
       text-align: center;
-      margin-top: 2px;
     }
   </style>
 </head>
 <body>
-<div class="game-container">
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
-  
-  <div class="top-bar">
-    <span class="hearts" id="heartsDisplay">❤️❤️❤️</span>
-    <span class="difficulty-badge" id="diffDisplay">⚡ ЛЕГКО</span>
-    <span class="coins-display" id="coinsDisplay">🪙 0</span>
+<div class="game-wrapper">
+  <div class="game-container" id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="top-bar" id="topBar">
+      <div class="hearts">
+        <span id="heartsDisplay">❤️❤️❤️</span>
+        <button class="buy-life-btn" id="buyLifeBtn" title="Купить жизнь (500 🪙)">+❤️</button>
+      </div>
+      <span class="difficulty-badge" id="diffDisplay">⚡ ЛЕГКО</span>
+      <span class="coins-display" id="coinsDisplay">🪙 0</span>
+    </div>
+    
+    <div class="controls" id="controlsBar">
+      <button class="ctrl-btn" id="upBtn">⬆️</button>
+      <button class="ctrl-btn" id="downBtn">⬇️</button>
+      <button class="ctrl-btn life-btn" id="quickLifeBtn">❤️</button>
+      <button class="ctrl-btn restart-btn" id="restartBtn">🔄</button>
+      <button class="ctrl-btn shop-btn" id="shopToggleBtn">🛒</button>
+    </div>
+    
+    <div class="shop-panel" id="shopPanel">
+      <div class="shop-title">🛍️ МАГАЗИН</div>
+      
+      <div class="shop-section">
+        <div class="shop-section-title">💎 УЛУЧШЕНИЯ</div>
+        <div class="upgrade-item">
+          <div class="upgrade-info">
+            <span class="upgrade-emoji">❤️</span>
+            <div>
+              <div class="upgrade-name">Доп. жизнь</div>
+              <div class="upgrade-desc">Максимум 5 ❤️</div>
+            </div>
+          </div>
+          <div id="lifeUpgradeBtn"></div>
+        </div>
+      </div>
+      
+      <div class="shop-section">
+        <div class="shop-section-title">🎨 СКИНЫ</div>
+        <div class="skin-grid" id="skinGrid"></div>
+      </div>
+      
+      <button class="close-shop" id="closeShopBtn">✕ Закрыть</button>
+    </div>
+    
+    <div class="orientation-hint" id="orientationHint">↔️ Можно повернуть</div>
   </div>
-  
-  <div class="controls">
-    <button class="ctrl-btn" id="upBtn">⬆️ ВВЕРХ</button>
-    <button class="ctrl-btn" id="downBtn">⬇️ ВНИЗ</button>
-    <button class="ctrl-btn restart-btn" id="restartBtn">🔄 СТАРТ</button>
-    <button class="ctrl-btn shop-btn" id="shopToggleBtn">🛒 СКИНЫ</button>
-  </div>
-  
-  <div class="shop-panel" id="shopPanel">
-    <div class="shop-title">🛍️ КОЛЛЕКЦИЯ СКИНОВ</div>
-    <div class="skin-grid" id="skinGrid"></div>
-    <button class="close-shop" id="closeShopBtn">✕ Закрыть магазин</button>
-  </div>
-  
-  <div class="hint-text">Верх/низ — опасно • Центр — безопасно</div>
 </div>
 
 <script>
 (function() {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-  const W = canvas.width;
-  const H = canvas.height;
-
+  const container = document.getElementById('gameContainer');
+  const orientationHint = document.getElementById('orientationHint');
+  
+  const WORLD_W = 400;
+  const WORLD_H = 600;
+  
+  let canvasW = WORLD_W;
+  let canvasH = WORLD_H;
+  let scaleX = 1;
+  let scaleY = 1;
+  
+  function resizeCanvas() {
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+    const padding = 16;
+    
+    const availW = containerW - padding * 2;
+    const availH = containerH - padding * 2 - 80;
+    
+    const ratio = WORLD_W / WORLD_H;
+    
+    if (availW / availH > ratio) {
+      canvasH = Math.min(availH, WORLD_H);
+      canvasW = canvasH * ratio;
+    } else {
+      canvasW = Math.min(availW, WORLD_W);
+      canvasH = canvasW / ratio;
+    }
+    
+    canvas.width = WORLD_W;
+    canvas.height = WORLD_H;
+    canvas.style.width = canvasW + 'px';
+    canvas.style.height = canvasH + 'px';
+    
+    scaleX = canvasW / WORLD_W;
+    scaleY = canvasH / WORLD_H;
+    
+    const isLandscape = window.innerWidth > window.innerHeight;
+    orientationHint.style.display = isLandscape ? 'none' : 'block';
+  }
+  
+  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 150));
+  resizeCanvas();
+  
   const heartsDisplay = document.getElementById('heartsDisplay');
   const coinsDisplay = document.getElementById('coinsDisplay');
   const diffSpan = document.getElementById('diffDisplay');
   const shopPanel = document.getElementById('shopPanel');
   const skinGrid = document.getElementById('skinGrid');
+  const lifeUpgradeBtn = document.getElementById('lifeUpgradeBtn');
+  const buyLifeBtn = document.getElementById('buyLifeBtn');
+  const quickLifeBtn = document.getElementById('quickLifeBtn');
 
   // ─── СОХРАНЕНИЕ ───
   function saveData() {
     try {
       localStorage.setItem('flappyCoins', totalCoins.toString());
       localStorage.setItem('flappySkin', equippedSkinId);
+      localStorage.setItem('flappyMaxLives', MAX_LIVES.toString());
       skins.forEach(s => {
         localStorage.setItem('flappy_own_' + s.id, s.owned.toString());
       });
@@ -265,6 +443,8 @@
     try {
       totalCoins = parseInt(localStorage.getItem('flappyCoins') || '0');
       equippedSkinId = localStorage.getItem('flappySkin') || 'default';
+      const savedLives = parseInt(localStorage.getItem('flappyMaxLives') || '3');
+      MAX_LIVES = Math.min(5, Math.max(3, savedLives));
       skins.forEach(s => {
         if (s.id !== 'default') {
           s.owned = localStorage.getItem('flappy_own_' + s.id) === 'true';
@@ -273,10 +453,14 @@
     } catch(e) {
       totalCoins = 0;
       equippedSkinId = 'default';
+      MAX_LIVES = 3;
     }
   }
 
   let totalCoins = 0;
+  let MAX_LIVES = 3;
+  const ABSOLUTE_MAX_LIVES = 5;
+  const LIFE_PRICE = 500;
   
   const skins = [
     { id: 'default', name: 'Птенчик', emoji: '🐤', price: 0, owned: true, bodyColor: '#4ecdc4', eyeColor: '#44bd9e', effect: null },
@@ -318,6 +502,25 @@
       renderShop();
     }
   }
+  
+  function buyExtraLife() {
+    if (MAX_LIVES >= ABSOLUTE_MAX_LIVES) {
+      alert('Максимум жизней уже достигнут! (5)');
+      return false;
+    }
+    if (totalCoins >= LIFE_PRICE) {
+      totalCoins -= LIFE_PRICE;
+      MAX_LIVES++;
+      player.health = MAX_LIVES;
+      player.maxHealth = MAX_LIVES;
+      saveData();
+      updateUI();
+      renderShop();
+      return true;
+    }
+    alert(`Недостаточно монет! Нужно ${LIFE_PRICE} 🪙`);
+    return false;
+  }
 
   function updateUI() {
     let h = '';
@@ -326,6 +529,10 @@
     }
     heartsDisplay.textContent = h;
     coinsDisplay.textContent = `🪙 ${totalCoins}`;
+    
+    // Обновляем кнопку покупки жизни
+    buyLifeBtn.style.display = MAX_LIVES >= ABSOLUTE_MAX_LIVES ? 'none' : 'inline-block';
+    buyLifeBtn.textContent = `+❤️ ${LIFE_PRICE}🪙`;
     
     let dt = '⚡ ЛЕГКО', dc = '#27ae60';
     if (difficultyLevel >= 8) { dt = '💀 ХАРД'; dc = '#8e44ad'; }
@@ -347,16 +554,36 @@
         ${skin.vip ? '<div class="vip-badge">VIP</div>' : ''}
         <div class="skin-preview" style="background:${skin.bodyColor}40; border:2px solid ${skin.bodyColor}">${skin.emoji}</div>
         <div class="skin-name">${skin.name}</div>
-        ${skin.owned ? '<div class="skin-owned">✅ Выбрать</div>' : `<div class="skin-price">🪙 ${skin.price}</div>`}
+        ${skin.owned ? '<div class="skin-owned">✅</div>' : `<div class="skin-price">🪙 ${skin.price}</div>`}
       `;
       
-      card.addEventListener('click', () => {
+      card.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (skin.owned) equipSkin(skin.id);
-        else if (!buySkin(skin.id)) alert(`Недостаточно монет! Нужно ${skin.price} 🪙`);
+        else if (!buySkin(skin.id)) alert(`Нужно ${skin.price} 🪙`);
       });
       
       skinGrid.appendChild(card);
     });
+    
+    // Кнопка покупки жизни в магазине
+    if (MAX_LIVES >= ABSOLUTE_MAX_LIVES) {
+      lifeUpgradeBtn.innerHTML = '<span class="upgrade-owned">✅ Максимум</span>';
+    } else {
+      lifeUpgradeBtn.innerHTML = `<button class="upgrade-buy-btn" id="shopLifeBuyBtn">${LIFE_PRICE} 🪙</button>`;
+      
+      setTimeout(() => {
+        const btn = document.getElementById('shopLifeBuyBtn');
+        if (btn) {
+          btn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            buyExtraLife();
+          });
+        }
+      }, 50);
+    }
   }
 
   // ─── ИГРА ───
@@ -364,7 +591,6 @@
   let score = 0;
   let survivalTime = 0;
   let difficultyLevel = 1;
-  const MAX_LIVES = 3;
   
   const CEILING_LIMIT = 60;
   const MAX_FLAPS = 5;
@@ -373,7 +599,7 @@
 
   const player = {
     x: 85,
-    y: H/2 - 22,
+    y: WORLD_H/2 - 22,
     width: 40,
     height: 40,
     health: MAX_LIVES,
@@ -401,23 +627,17 @@
 
   class Obstacle {
     constructor(y, w, h, type, position) {
-      this.x = W + 30;
-      this.y = y;
-      this.width = w;
-      this.height = h;
-      this.type = type;
-      this.position = position; // 'top', 'bottom', 'center'
-      this.active = true;
-      this.passed = false;
+      this.x = WORLD_W + 30;
+      this.y = y; this.width = w; this.height = h;
+      this.type = type; this.position = position;
+      this.active = true; this.passed = false;
     }
   }
   
   class Coin {
     constructor(y) {
-      this.x = W + 35;
-      this.y = y;
-      this.radius = 13;
-      this.active = true;
+      this.x = WORLD_W + 35;
+      this.y = y; this.radius = 13; this.active = true;
     }
   }
   
@@ -433,7 +653,8 @@
   function resetGame() {
     gameActive = true;
     player.health = MAX_LIVES;
-    player.y = H/2 - 22;
+    player.maxHealth = MAX_LIVES;
+    player.y = WORLD_H/2 - 22;
     player.velocityY = 0;
     player.invincible = false;
     player.invincibleTimer = 0;
@@ -498,17 +719,12 @@
   function spawnObstacles() {
     if (!gameActive) return;
     
-    // Спавним 2-3 препятствия: сверху и снизу, иногда в центре
     const count = difficultyLevel >= 7 ? 3 : 2;
-    
-    // Позиции для препятствий
     const positions = [];
     
-    // Всегда спавним сверху и снизу
     positions.push('top');
     positions.push('bottom');
     
-    // Иногда добавляем центральное (30% шанс)
     if (count >= 3 || Math.random() < 0.3) {
       positions.push('center');
     }
@@ -519,19 +735,16 @@
       let y, w, h, type;
       
       if (pos === 'top') {
-        // Верхние препятствия
         w = 50 + Math.random() * 30;
         h = 25 + Math.random() * 15;
         y = CEILING_LIMIT + 10 + Math.random() * 60;
         type = r < 0.5 ? 'car' : 'log';
       } else if (pos === 'bottom') {
-        // Нижние препятствия
         w = 50 + Math.random() * 30;
         h = 25 + Math.random() * 15;
-        y = H - 100 - h - Math.random() * 50;
+        y = WORLD_H - 100 - h - Math.random() * 50;
         type = r < 0.5 ? 'car' : 'log';
       } else {
-        // Центральное препятствие (редкое)
         w = 22;
         h = 50 + Math.random() * 40;
         y = 220 + Math.random() * 160;
@@ -546,7 +759,6 @@
 
   function spawnCoin() {
     if (!gameActive) return;
-    // Монеты в основном в центральной безопасной зоне
     const y = 180 + Math.random() * 240;
     coins.push(new Coin(y));
   }
@@ -582,8 +794,8 @@
       player.velocityY = Math.max(0, player.velocityY);
     }
     
-    if (player.y + player.height > H-75) { 
-      player.y = H-75-player.height; 
+    if (player.y + player.height > WORLD_H-75) { 
+      player.y = WORLD_H-75-player.height; 
       player.velocityY = 0; 
       flapCount = 0;
     }
@@ -593,14 +805,12 @@
       if (player.invincibleTimer <= 0) player.invincible = false;
     }
     
-    // Частицы
     for (let i = effectParticles.length-1; i >= 0; i--) {
       const p = effectParticles[i];
       p.x += p.vx; p.y += p.vy; p.life--;
       if (p.life <= 0) effectParticles.splice(i, 1);
     }
     
-    // Препятствия
     for (let i = obstacles.length-1; i >= 0; i--) {
       const obs = obstacles[i];
       obs.x -= currentSpeed;
@@ -611,14 +821,12 @@
       if (obs.x + obs.width < -40) obstacles.splice(i, 1);
     }
     
-    // Монеты
     for (let i = coins.length-1; i >= 0; i--) {
       const c = coins[i];
       c.x -= currentSpeed;
       if (c.x + c.radius < -20) coins.splice(i, 1);
     }
     
-    // Столкновения
     const pRect = {x:player.x, y:player.y, width:player.width, height:player.height};
     for (let i = obstacles.length-1; i >= 0; i--) {
       const obs = obstacles[i];
@@ -629,7 +837,6 @@
       }
     }
     
-    // Сбор монет
     for (let i = coins.length-1; i >= 0; i--) {
       const c = coins[i];
       if (circleCollide(player.x+player.width/2, player.y+player.height/2, 20, c.x, c.y, c.radius)) {
@@ -714,47 +921,41 @@
   }
 
   function draw() {
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, WORLD_W, WORLD_H);
     
-    const grd = ctx.createLinearGradient(0, 0, W, 0);
+    const grd = ctx.createLinearGradient(0, 0, WORLD_W, 0);
     grd.addColorStop(0, '#1a2332'); grd.addColorStop(1, '#2d3a4f');
-    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, WORLD_W, WORLD_H);
     
-    // Зоны опасности
     ctx.fillStyle = '#e74c3c10';
-    ctx.fillRect(0, CEILING_LIMIT, W, 100);
-    ctx.fillRect(0, H-170, W, 100);
+    ctx.fillRect(0, CEILING_LIMIT, WORLD_W, 100);
+    ctx.fillRect(0, WORLD_H-170, WORLD_W, 100);
     
-    // Безопасная центральная зона
     ctx.fillStyle = '#2ecc7120';
-    ctx.fillRect(0, 200, W, 200);
+    ctx.fillRect(0, 200, WORLD_W, 200);
     ctx.strokeStyle = '#2ecc7140';
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 8]);
-    ctx.strokeRect(5, 200, W-10, 200);
+    ctx.strokeRect(5, 200, WORLD_W-10, 200);
     ctx.setLineDash([]);
     
-    // Потолок
     ctx.fillStyle = '#e74c3c20';
-    ctx.fillRect(0, 0, W, CEILING_LIMIT);
+    ctx.fillRect(0, 0, WORLD_W, CEILING_LIMIT);
     ctx.strokeStyle = '#e74c3c50';
     ctx.lineWidth = 2;
     ctx.setLineDash([10, 10]);
-    ctx.beginPath(); ctx.moveTo(0, CEILING_LIMIT); ctx.lineTo(W, CEILING_LIMIT); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, CEILING_LIMIT); ctx.lineTo(WORLD_W, CEILING_LIMIT); ctx.stroke();
     ctx.setLineDash([]);
     
-    // Декоративные линии
     ctx.strokeStyle = '#3f5068'; ctx.lineWidth = 1.5;
-    for (let i=0; i<H; i+=50) {
+    for (let i=0; i<WORLD_H; i+=50) {
       const off = (survivalTime*currentSpeed*0.3)%50;
-      ctx.beginPath(); ctx.moveTo(0, i+off); ctx.lineTo(W, i+off-15); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i+off); ctx.lineTo(WORLD_W, i+off-15); ctx.stroke();
     }
     
-    // Земля
-    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(0, H-70, W, 70);
-    ctx.fillStyle = '#5e4a32'; ctx.fillRect(0, H-70, W, 6);
+    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(0, WORLD_H-70, WORLD_W, 70);
+    ctx.fillStyle = '#5e4a32'; ctx.fillRect(0, WORLD_H-70, WORLD_W, 6);
     
-    // Частицы
     for (let p of effectParticles) {
       ctx.globalAlpha = p.life / p.maxLife;
       ctx.fillStyle = p.color;
@@ -762,7 +963,6 @@
     }
     ctx.globalAlpha = 1;
     
-    // Монеты
     for (let c of coins) {
       ctx.save();
       ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 14;
@@ -776,12 +976,10 @@
       ctx.restore();
     }
     
-    // Препятствия
     for (let obs of obstacles) {
       ctx.save();
       ctx.shadowColor = '#00000080'; ctx.shadowBlur = 12;
       
-      // Цвет зависит от позиции
       let color1, color2;
       if (obs.position === 'top') {
         color1 = '#e74c3c'; color2 = '#c0392b';
@@ -815,28 +1013,25 @@
     
     drawPlayer();
     
-    // Статистика
     ctx.fillStyle = '#ffffff90';
     ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`Скорость: ${currentSpeed.toFixed(1)}`, 10, CEILING_LIMIT+18);
-    ctx.fillText(`Препятствий: ${obstacles.length}`, 10, CEILING_LIMIT+34);
-    ctx.fillText(`⚠️ Верх/низ`, W-90, CEILING_LIMIT+18);
-    ctx.fillText(`✅ Центр`, W-65, CEILING_LIMIT+34);
+    ctx.fillText(`Жизни: ${player.health}/${MAX_LIVES}`, 10, CEILING_LIMIT+34);
     
     if (!gameActive) {
       ctx.globalAlpha = 0.85;
       ctx.fillStyle = '#0b0e14';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#f7da6c';
       ctx.font = 'bold 28px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('💔 ИГРА ОКОНЧЕНА', W/2, H/2-30);
+      ctx.fillText('💔 ИГРА ОКОНЧЕНА', WORLD_W/2, WORLD_H/2-30);
       ctx.font = '18px sans-serif';
-      ctx.fillText(`Счёт: ${score} | Монет: ${totalCoins}`, W/2, H/2+15);
+      ctx.fillText(`Счёт: ${score} | Монет: ${totalCoins}`, WORLD_W/2, WORLD_H/2+15);
       ctx.font = '14px sans-serif';
-      ctx.fillText('Нажми СТАРТ для новой игры', W/2, H/2+40);
+      ctx.fillText('Нажми СТАРТ для новой игры', WORLD_W/2, WORLD_H/2+40);
     }
   }
 
@@ -856,29 +1051,70 @@
     };
   }
 
-  function gameLoop() {
-    update();
+  let lastTime = 0;
+  function gameLoop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    
+    const delta = timestamp - lastTime;
+    const maxUpdates = 2;
+    const updateCount = Math.min(maxUpdates, Math.floor(delta / 16));
+    
+    for (let i = 0; i < updateCount; i++) {
+      update();
+    }
+    
     draw();
+    lastTime = timestamp;
     requestAnimationFrame(gameLoop);
   }
 
+  function getGameCoordinates(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = clientX - rect.left;
+    const canvasY = clientY - rect.top;
+    return {
+      x: canvasX / scaleX,
+      y: canvasY / scaleY
+    };
+  }
+
   function attachEvents() {
-    document.getElementById('upBtn').addEventListener('click', (e) => {
-      e.preventDefault(); flapRequested = true;
+    document.getElementById('upBtn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      flapRequested = true;
     });
-    document.getElementById('downBtn').addEventListener('click', (e) => {
-      e.preventDefault(); if (gameActive) player.velocityY = 5;
+    
+    document.getElementById('downBtn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (gameActive) player.velocityY = 5;
     });
-    document.getElementById('restartBtn').addEventListener('click', (e) => {
-      e.preventDefault(); resetGame();
+    
+    document.getElementById('restartBtn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      resetGame();
     });
-    document.getElementById('shopToggleBtn').addEventListener('click', (e) => {
+    
+    document.getElementById('shopToggleBtn').addEventListener('pointerdown', (e) => {
       e.preventDefault();
       shopPanel.classList.toggle('active');
       if (shopPanel.classList.contains('active')) renderShop();
     });
-    document.getElementById('closeShopBtn').addEventListener('click', (e) => {
-      e.preventDefault(); shopPanel.classList.remove('active');
+    
+    document.getElementById('closeShopBtn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      shopPanel.classList.remove('active');
+    });
+    
+    // Кнопка покупки жизни
+    buyLifeBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      buyExtraLife();
+    });
+    
+    quickLifeBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      buyExtraLife();
     });
     
     window.addEventListener('keydown', (e) => {
@@ -888,28 +1124,33 @@
         e.preventDefault(); if (gameActive) player.velocityY = 5;
       } else if (e.key === 'r' || e.key === 'R') {
         e.preventDefault(); resetGame();
+      } else if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault(); buyExtraLife();
       }
     });
     
     canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
-      if (touchY < H*0.5) flapRequested = true;
+      const touch = e.touches[0];
+      const gameCoords = getGameCoordinates(touch.clientX, touch.clientY);
+      if (gameCoords.y < WORLD_H * 0.5) flapRequested = true;
       else if (gameActive) player.velocityY = 5;
-    });
+    }, {passive: false});
     
     canvas.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-      if (mouseY < H*0.5) flapRequested = true;
+      const gameCoords = getGameCoordinates(e.clientX, e.clientY);
+      if (gameCoords.y < WORLD_H * 0.5) flapRequested = true;
       else if (gameActive) player.velocityY = 5;
     });
   }
 
+  player.health = MAX_LIVES;
+  player.maxHealth = MAX_LIVES;
   updateUI();
   renderShop();
   attachEvents();
-  gameLoop();
+  requestAnimationFrame(gameLoop);
 })();
 </script>
 </body>
