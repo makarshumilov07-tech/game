@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Flappy Road · Полный экран + Жизни</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Flappy Road · Fullscreen</title>
   <style>
     * {
       margin: 0;
@@ -20,22 +21,16 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0d1117;
+      background: #000;
       font-family: 'Segoe UI', system-ui, sans-serif;
       touch-action: manipulation;
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
     }
-    .game-wrapper {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0d1117;
-    }
-    .game-container {
+    #gameContainer {
       width: 100%;
       height: 100%;
       display: flex;
@@ -43,137 +38,166 @@
       align-items: center;
       justify-content: center;
       background: linear-gradient(165deg, #1a2332, #0a0f18);
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       position: relative;
+      overflow: hidden;
     }
     canvas {
       display: block;
-      border-radius: 12px;
+      border-radius: 8px;
       background: #0f1822;
-      box-shadow: inset 0 0 30px #00000080, 0 0 40px rgba(0,0,0,0.5);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
       touch-action: none;
+      image-rendering: auto;
     }
-    .top-bar {
-      width: 100%;
-      max-width: 500px;
+    .ui-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px;
+      pointer-events: none;
+    }
+    .stats-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 8px;
-      gap: 6px;
-      pointer-events: auto;
-    }
-    .hearts {
-      font-size: clamp(0.9rem, 2vw, 1.2rem);
-      letter-spacing: 2px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .buy-life-btn {
-      background: #e74c3c;
-      color: white;
-      border: none;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.6rem;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .buy-life-btn:active {
-      background: #c0392b;
-    }
-    .coins-display {
-      background: #f0a04b;
-      color: #161c28;
-      padding: 5px 12px;
-      border-radius: 30px;
-      font-weight: 800;
-      box-shadow: 0 0 12px #ff9933;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: clamp(0.75rem, 1.8vw, 0.9rem);
-    }
-    .difficulty-badge {
-      color: white;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: clamp(0.6rem, 1.5vw, 0.7rem);
-      font-weight: bold;
-      white-space: nowrap;
-    }
-    .controls {
       width: 100%;
       max-width: 500px;
-      display: flex;
-      gap: 6px;
-      padding: 4px 8px;
-      justify-content: center;
+      padding: 0 8px;
       pointer-events: auto;
     }
-    .ctrl-btn {
-      background: linear-gradient(180deg, #3f4868 0%, #1e2238 100%);
+    .hearts-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hearts {
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      line-height: 1;
+    }
+    .btn-buy-life {
+      background: #e74c3c;
+      color: #fff;
       border: none;
-      color: white;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.7rem;
       font-weight: bold;
-      font-size: clamp(0.7rem, 1.6vw, 0.9rem);
-      padding: clamp(10px, 2vh, 14px) clamp(10px, 3vw, 16px);
-      border-radius: 40px;
-      box-shadow: 0 4px 0 #0b0d15;
       cursor: pointer;
-      touch-action: manipulation;
-      transition: 0.06s;
+      white-space: nowrap;
+      box-shadow: 0 2px 0 #a93226;
+      transition: 0.05s;
+    }
+    .btn-buy-life:active {
+      transform: translateY(2px);
+      box-shadow: none;
+    }
+    .btn-buy-life:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .diff-badge {
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .coins-badge {
+      background: #f0a04b;
+      color: #161c28;
+      padding: 5px 14px;
+      border-radius: 30px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 0 10px rgba(240,160,75,0.5);
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 500px;
+      justify-content: center;
+      padding: 0 8px;
+      pointer-events: auto;
+    }
+    .btn {
+      border: none;
+      font-weight: bold;
       text-transform: uppercase;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.06s;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
       flex: 1;
-      min-width: 50px;
-      max-width: 100px;
-      -webkit-tap-highlight-color: transparent;
+      min-width: 45px;
+      max-width: 110px;
+      padding: 12px 8px;
+      font-size: 0.8rem;
       letter-spacing: 0.5px;
     }
-    .ctrl-btn:active {
+    .btn:active {
       transform: translateY(3px);
-      box-shadow: 0 1px 0 #0b0d15;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.3);
     }
-    .restart-btn {
-      background: linear-gradient(180deg, #c94b4b, #701e1e);
+    .btn-up {
+      background: linear-gradient(180deg, #4CAF50, #2E7D32);
+      color: #fff;
     }
-    .shop-btn {
-      background: linear-gradient(180deg, #f39c12, #d68910);
-      color: #1a1a2e;
+    .btn-down {
+      background: linear-gradient(180deg, #2196F3, #1565C0);
+      color: #fff;
     }
-    .life-btn {
+    .btn-life {
       background: linear-gradient(180deg, #e74c3c, #a93226);
-      color: white;
-      max-width: 80px;
+      color: #fff;
+      max-width: 60px;
     }
-    .shop-panel {
+    .btn-restart {
+      background: linear-gradient(180deg, #FF9800, #E65100);
+      color: #fff;
+      max-width: 60px;
+    }
+    .btn-shop {
+      background: linear-gradient(180deg, #9C27B0, #6A1B9A);
+      color: #fff;
+      max-width: 60px;
+    }
+    .shop-overlay {
       display: none;
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
       width: 90%;
-      max-width: 400px;
+      max-width: 380px;
       background: #1e2a3a;
       border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      max-height: 50vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 20;
       pointer-events: auto;
-      position: absolute;
-      bottom: 80px;
-      z-index: 10;
+      max-height: 55vh;
+      overflow-y: auto;
     }
-    .shop-panel.active {
+    .shop-overlay.show {
       display: block;
     }
     .shop-title {
       color: #f7da6c;
       font-weight: bold;
-      font-size: clamp(0.9rem, 2vw, 1rem);
-      margin-bottom: 8px;
+      font-size: 1rem;
       text-align: center;
+      margin-bottom: 10px;
     }
     .shop-section {
       margin-bottom: 12px;
@@ -183,6 +207,8 @@
       font-size: 0.7rem;
       margin-bottom: 6px;
       padding-left: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     .skin-grid {
       display: grid;
@@ -198,174 +224,158 @@
       border: 2px solid transparent;
       transition: 0.2s;
       position: relative;
-      -webkit-tap-highlight-color: transparent;
     }
-    .skin-card.selected {
+    .skin-card.active {
       border-color: #f7da6c;
-      box-shadow: 0 0 18px #f7da6c80;
+      box-shadow: 0 0 15px rgba(247,218,108,0.4);
       background: #2a3550;
     }
     .skin-card.locked {
-      opacity: 0.7;
+      opacity: 0.6;
     }
-    .skin-preview {
-      width: 40px;
-      height: 40px;
-      margin: 0 auto 4px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
+    .skin-emoji {
+      font-size: 1.8rem;
+      display: block;
+      margin-bottom: 2px;
     }
     .skin-name {
       color: #ddd;
-      font-size: clamp(0.55rem, 1.3vw, 0.65rem);
-      margin: 2px 0;
+      font-size: 0.65rem;
       font-weight: bold;
     }
-    .skin-price {
+    .skin-status {
+      font-size: 0.6rem;
+      margin-top: 2px;
+    }
+    .skin-status.owned {
+      color: #27ae60;
+    }
+    .skin-status.price {
       color: #f0a04b;
       font-weight: bold;
-      font-size: clamp(0.6rem, 1.4vw, 0.7rem);
     }
-    .skin-owned {
-      color: #27ae60;
-      font-weight: bold;
-      font-size: clamp(0.55rem, 1.3vw, 0.65rem);
-    }
-    .vip-badge {
+    .vip-tag {
       position: absolute;
-      top: -4px;
-      right: -4px;
+      top: -5px;
+      right: -5px;
       background: #ffd700;
-      color: #1a1a2e;
+      color: #000;
       border-radius: 8px;
       padding: 1px 5px;
       font-size: 0.5rem;
       font-weight: bold;
     }
-    .upgrade-item {
+    .upgrade-row {
       background: #232d3d;
       border-radius: 12px;
-      padding: 10px;
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
     }
     .upgrade-info {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .upgrade-emoji {
+    .upgrade-info span {
       font-size: 1.5rem;
     }
-    .upgrade-name {
+    .upgrade-text strong {
       color: #ddd;
-      font-weight: bold;
       font-size: 0.8rem;
     }
-    .upgrade-desc {
+    .upgrade-text small {
       color: #999;
       font-size: 0.6rem;
+      display: block;
     }
-    .upgrade-buy-btn {
+    .btn-upgrade {
       background: #e74c3c;
-      color: white;
+      color: #fff;
       border: none;
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 20px;
       font-weight: bold;
       font-size: 0.7rem;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      white-space: nowrap;
     }
-    .upgrade-buy-btn:active {
+    .btn-upgrade:active {
       background: #c0392b;
     }
-    .upgrade-owned {
-      color: #27ae60;
-      font-weight: bold;
-      font-size: 0.7rem;
+    .btn-upgrade:disabled {
+      opacity: 0.4;
+      pointer-events: none;
     }
-    .close-shop {
-      background: #c94b4b;
-      color: white;
+    .btn-close-shop {
+      background: #555;
+      color: #fff;
       border: none;
       padding: 8px 20px;
       border-radius: 20px;
-      cursor: pointer;
-      margin-top: 8px;
       font-weight: bold;
+      cursor: pointer;
       display: block;
-      margin-left: auto;
-      margin-right: auto;
-      font-size: clamp(0.7rem, 1.6vw, 0.85rem);
-      -webkit-tap-highlight-color: transparent;
+      margin: 10px auto 0;
+      font-size: 0.8rem;
     }
-    .orientation-hint {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #ffffff60;
-      font-size: 0.6rem;
-      pointer-events: none;
-      text-align: center;
+    @media (max-width: 400px) {
+      .btn {
+        padding: 10px 6px;
+        font-size: 0.7rem;
+      }
+      .hearts {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <div class="game-container" id="gameContainer">
-    <canvas id="gameCanvas"></canvas>
-    
-    <div class="top-bar" id="topBar">
-      <div class="hearts">
-        <span id="heartsDisplay">❤️❤️❤️</span>
-        <button class="buy-life-btn" id="buyLifeBtn" title="Купить жизнь (500 🪙)">+❤️</button>
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+  
+  <div class="ui-layer">
+    <div class="stats-row">
+      <div class="hearts-container">
+        <span class="hearts" id="heartsDisplay">❤️❤️❤️</span>
+        <button class="btn-buy-life" id="btnBuyLife" title="Купить жизнь (500 монет)">+❤️</button>
       </div>
-      <span class="difficulty-badge" id="diffDisplay">⚡ ЛЕГКО</span>
-      <span class="coins-display" id="coinsDisplay">🪙 0</span>
+      <span class="diff-badge" id="diffDisplay">⚡ ЛЕГКО</span>
+      <span class="coins-badge" id="coinsDisplay">🪙 0</span>
     </div>
     
-    <div class="controls" id="controlsBar">
-      <button class="ctrl-btn" id="upBtn">⬆️</button>
-      <button class="ctrl-btn" id="downBtn">⬇️</button>
-      <button class="ctrl-btn life-btn" id="quickLifeBtn">❤️</button>
-      <button class="ctrl-btn restart-btn" id="restartBtn">🔄</button>
-      <button class="ctrl-btn shop-btn" id="shopToggleBtn">🛒</button>
+    <div class="btn-row">
+      <button class="btn btn-up" id="btnUp">⬆️ ВВЕРХ</button>
+      <button class="btn btn-down" id="btnDown">⬇️ ВНИЗ</button>
+      <button class="btn btn-life" id="btnLife">❤️</button>
+      <button class="btn btn-restart" id="btnRestart">🔄</button>
+      <button class="btn btn-shop" id="btnShop">🛒</button>
     </div>
+  </div>
+  
+  <div class="shop-overlay" id="shopOverlay">
+    <div class="shop-title">🛍️ МАГАЗИН</div>
     
-    <div class="shop-panel" id="shopPanel">
-      <div class="shop-title">🛍️ МАГАЗИН</div>
-      
-      <div class="shop-section">
-        <div class="shop-section-title">💎 УЛУЧШЕНИЯ</div>
-        <div class="upgrade-item">
-          <div class="upgrade-info">
-            <span class="upgrade-emoji">❤️</span>
-            <div>
-              <div class="upgrade-name">Доп. жизнь</div>
-              <div class="upgrade-desc">Максимум 5 ❤️</div>
-            </div>
+    <div class="shop-section">
+      <div class="shop-section-title">💎 Улучшения</div>
+      <div class="upgrade-row">
+        <div class="upgrade-info">
+          <span>❤️</span>
+          <div class="upgrade-text">
+            <strong>Дополнительная жизнь</strong>
+            <small>Максимум 5</small>
           </div>
-          <div id="lifeUpgradeBtn"></div>
         </div>
+        <button class="btn-upgrade" id="btnShopLife">500 🪙</button>
       </div>
-      
-      <div class="shop-section">
-        <div class="shop-section-title">🎨 СКИНЫ</div>
-        <div class="skin-grid" id="skinGrid"></div>
-      </div>
-      
-      <button class="close-shop" id="closeShopBtn">✕ Закрыть</button>
     </div>
     
-    <div class="orientation-hint" id="orientationHint">↔️ Можно повернуть</div>
+    <div class="shop-section">
+      <div class="shop-section-title">🎨 Скины</div>
+      <div class="skin-grid" id="skinGrid"></div>
+    </div>
+    
+    <button class="btn-close-shop" id="btnCloseShop">✕ Закрыть</button>
   </div>
 </div>
 
@@ -374,672 +384,584 @@
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const container = document.getElementById('gameContainer');
-  const orientationHint = document.getElementById('orientationHint');
   
+  // ─── КОНСТАНТЫ ИГРОВОГО МИРА ───
   const WORLD_W = 400;
   const WORLD_H = 600;
+  const CEILING = 55;
+  const GROUND_Y = WORLD_H - 70;
+  const LIFE_COST = 500;
+  const MAX_LIVES_CAP = 5;
   
-  let canvasW = WORLD_W;
-  let canvasH = WORLD_H;
-  let scaleX = 1;
-  let scaleY = 1;
-  
-  function resizeCanvas() {
-    const containerW = container.clientWidth;
-    const containerH = container.clientHeight;
-    const padding = 16;
-    
-    const availW = containerW - padding * 2;
-    const availH = containerH - padding * 2 - 80;
-    
+  // ─── АДАПТИВНЫЙ РАЗМЕР КАНВАСА ───
+  function resize() {
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const uiHeight = 100;
+    const availH = ch - uiHeight;
     const ratio = WORLD_W / WORLD_H;
     
-    if (availW / availH > ratio) {
-      canvasH = Math.min(availH, WORLD_H);
-      canvasW = canvasH * ratio;
+    let displayW, displayH;
+    
+    if (cw / availH > ratio) {
+      displayH = Math.min(availH, WORLD_H);
+      displayW = displayH * ratio;
     } else {
-      canvasW = Math.min(availW, WORLD_W);
-      canvasH = canvasW / ratio;
+      displayW = Math.min(cw, WORLD_W);
+      displayH = displayW / ratio;
     }
     
     canvas.width = WORLD_W;
     canvas.height = WORLD_H;
-    canvas.style.width = canvasW + 'px';
-    canvas.style.height = canvasH + 'px';
-    
-    scaleX = canvasW / WORLD_W;
-    scaleY = canvasH / WORLD_H;
-    
-    const isLandscape = window.innerWidth > window.innerHeight;
-    orientationHint.style.display = isLandscape ? 'none' : 'block';
+    canvas.style.width = displayW + 'px';
+    canvas.style.height = displayH + 'px';
   }
   
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 150));
-  resizeCanvas();
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+  resize();
   
-  const heartsDisplay = document.getElementById('heartsDisplay');
-  const coinsDisplay = document.getElementById('coinsDisplay');
-  const diffSpan = document.getElementById('diffDisplay');
-  const shopPanel = document.getElementById('shopPanel');
-  const skinGrid = document.getElementById('skinGrid');
-  const lifeUpgradeBtn = document.getElementById('lifeUpgradeBtn');
-  const buyLifeBtn = document.getElementById('buyLifeBtn');
-  const quickLifeBtn = document.getElementById('quickLifeBtn');
-
-  // ─── СОХРАНЕНИЕ ───
-  function saveData() {
+  // ─── DOM ЭЛЕМЕНТЫ ───
+  const $hearts = document.getElementById('heartsDisplay');
+  const $coins = document.getElementById('coinsDisplay');
+  const $diff = document.getElementById('diffDisplay');
+  const $shop = document.getElementById('shopOverlay');
+  const $skinGrid = document.getElementById('skinGrid');
+  const $btnBuyLife = document.getElementById('btnBuyLife');
+  const $btnShopLife = document.getElementById('btnShopLife');
+  
+  // ─── ДАННЫЕ ───
+  let totalCoins = 0;
+  let maxLives = 3;
+  let equippedSkin = 'default';
+  
+  const skins = [
+    { id: 'default', name: 'Птенчик', emoji: '🐤', cost: 0, owned: true, body: '#4ecdc4', eye: '#44bd9e' },
+    { id: 'dragon', name: 'Дракон', emoji: '🐲', cost: 80, owned: false, body: '#e74c3c', eye: '#ff6b35' },
+    { id: 'robot', name: 'Робот', emoji: '🤖', cost: 120, owned: false, body: '#95a5a6', eye: '#3498db' },
+    { id: 'ninja', name: 'Ниндзя', emoji: '🥷', cost: 150, owned: false, body: '#2c3e50', eye: '#e74c3c' },
+    { id: 'unicorn', name: 'Единорог', emoji: '🦄', cost: 200, owned: false, body: '#e8a0bf', eye: '#9b59b6' },
+    { id: 'phoenix', name: '👑 Феникс', emoji: '🔥', cost: 350, owned: false, body: '#ff6b35', eye: '#ffd700', vip: true },
+  ];
+  
+  // ─── ЗАГРУЗКА/СОХРАНЕНИЕ ───
+  function load() {
     try {
-      localStorage.setItem('flappyCoins', totalCoins.toString());
-      localStorage.setItem('flappySkin', equippedSkinId);
-      localStorage.setItem('flappyMaxLives', MAX_LIVES.toString());
+      totalCoins = parseInt(localStorage.flappyCoins || '0');
+      maxLives = Math.min(MAX_LIVES_CAP, Math.max(3, parseInt(localStorage.flappyMaxLives || '3')));
+      equippedSkin = localStorage.flappySkin || 'default';
       skins.forEach(s => {
-        localStorage.setItem('flappy_own_' + s.id, s.owned.toString());
+        if (s.id !== 'default') s.owned = localStorage['flappy_own_' + s.id] === 'true';
       });
     } catch(e) {}
   }
   
-  function loadData() {
+  function save() {
     try {
-      totalCoins = parseInt(localStorage.getItem('flappyCoins') || '0');
-      equippedSkinId = localStorage.getItem('flappySkin') || 'default';
-      const savedLives = parseInt(localStorage.getItem('flappyMaxLives') || '3');
-      MAX_LIVES = Math.min(5, Math.max(3, savedLives));
+      localStorage.flappyCoins = totalCoins;
+      localStorage.flappyMaxLives = maxLives;
+      localStorage.flappySkin = equippedSkin;
       skins.forEach(s => {
-        if (s.id !== 'default') {
-          s.owned = localStorage.getItem('flappy_own_' + s.id) === 'true';
-        }
+        if (s.id !== 'default') localStorage['flappy_own_' + s.id] = s.owned;
       });
-    } catch(e) {
-      totalCoins = 0;
-      equippedSkinId = 'default';
-      MAX_LIVES = 3;
-    }
-  }
-
-  let totalCoins = 0;
-  let MAX_LIVES = 3;
-  const ABSOLUTE_MAX_LIVES = 5;
-  const LIFE_PRICE = 500;
-  
-  const skins = [
-    { id: 'default', name: 'Птенчик', emoji: '🐤', price: 0, owned: true, bodyColor: '#4ecdc4', eyeColor: '#44bd9e', effect: null },
-    { id: 'dragon', name: 'Дракон', emoji: '🐲', price: 80, owned: false, bodyColor: '#e74c3c', eyeColor: '#ff6b35', effect: 'fire' },
-    { id: 'robot', name: 'Робот', emoji: '🤖', price: 120, owned: false, bodyColor: '#95a5a6', eyeColor: '#3498db', effect: 'electric' },
-    { id: 'ninja', name: 'Ниндзя', emoji: '🥷', price: 150, owned: false, bodyColor: '#2c3e50', eyeColor: '#e74c3c', effect: 'shadow' },
-    { id: 'unicorn', name: 'Единорог', emoji: '🦄', price: 200, owned: false, bodyColor: '#e8a0bf', eyeColor: '#9b59b6', effect: 'sparkle' },
-    { id: 'phoenix', name: '👑 Феникс', emoji: '🔥', price: 350, owned: false, bodyColor: '#ff6b35', eyeColor: '#ffd700', effect: 'phoenix', vip: true },
-  ];
-  
-  let equippedSkinId = 'default';
-  loadData();
-  
-  function getEquippedSkin() {
-    return skins.find(s => s.id === equippedSkinId) || skins[0];
+    } catch(e) {}
   }
   
-  function buySkin(skinId) {
-    const skin = skins.find(s => s.id === skinId);
-    if (!skin || skin.owned) return false;
-    if (totalCoins >= skin.price) {
-      totalCoins -= skin.price;
-      skin.owned = true;
-      equippedSkinId = skinId;
-      saveData();
-      updateUI();
-      renderShop();
-      return true;
-    }
-    return false;
+  load();
+  
+  function getSkin() {
+    return skins.find(s => s.id === equippedSkin) || skins[0];
   }
   
-  function equipSkin(skinId) {
-    const skin = skins.find(s => s.id === skinId);
-    if (skin && skin.owned) {
-      equippedSkinId = skinId;
-      saveData();
-      updateUI();
-      renderShop();
-    }
+  // ─── ИГРОВОЕ СОСТОЯНИЕ ───
+  let gameActive = false;
+  let score = 0;
+  let ticks = 0;
+  let diffLevel = 1;
+  let flapCount = 0;
+  let flapCooldown = 0;
+  let inputQueue = { flap: false, dive: false };
+  
+  const player = {
+    x: 85, y: 0, w: 40, h: 40,
+    vy: 0,
+    hp: 3,
+    invTimer: 0,
+    gravity: 0.38,
+    jumpPower: -6.5
+  };
+  
+  let obstacles = [];
+  let coins = [];
+  let particles = [];
+  let spawnTimer = 0;
+  let coinTimer = 0;
+  let worldSpeed = 4.0;
+  
+  function resetGame() {
+    gameActive = true;
+    player.y = WORLD_H/2 - 22;
+    player.vy = 0;
+    player.hp = maxLives;
+    player.invTimer = 0;
+    obstacles = [];
+    coins = [];
+    particles = [];
+    score = 0;
+    ticks = 0;
+    diffLevel = 1;
+    flapCount = 0;
+    flapCooldown = 0;
+    spawnTimer = 0;
+    coinTimer = 0;
+    worldSpeed = 4.0;
+    inputQueue = { flap: false, dive: false };
+    updateUI();
   }
   
-  function buyExtraLife() {
-    if (MAX_LIVES >= ABSOLUTE_MAX_LIVES) {
-      alert('Максимум жизней уже достигнут! (5)');
-      return false;
-    }
-    if (totalCoins >= LIFE_PRICE) {
-      totalCoins -= LIFE_PRICE;
-      MAX_LIVES++;
-      player.health = MAX_LIVES;
-      player.maxHealth = MAX_LIVES;
-      saveData();
-      updateUI();
-      renderShop();
-      return true;
-    }
-    alert(`Недостаточно монет! Нужно ${LIFE_PRICE} 🪙`);
-    return false;
-  }
-
   function updateUI() {
     let h = '';
-    for (let i = 0; i < MAX_LIVES; i++) {
-      h += i < player.health ? '❤️' : '🖤';
-    }
-    heartsDisplay.textContent = h;
-    coinsDisplay.textContent = `🪙 ${totalCoins}`;
+    for (let i = 0; i < maxLives; i++) h += i < player.hp ? '❤️' : '🖤';
+    $hearts.textContent = h;
+    $coins.textContent = `🪙 ${totalCoins}`;
     
-    // Обновляем кнопку покупки жизни
-    buyLifeBtn.style.display = MAX_LIVES >= ABSOLUTE_MAX_LIVES ? 'none' : 'inline-block';
-    buyLifeBtn.textContent = `+❤️ ${LIFE_PRICE}🪙`;
+    const levels = [
+      { min: 1, text: '⚡ ЛЕГКО', color: '#27ae60' },
+      { min: 4, text: '⚠️ СРЕДНЕ', color: '#f39c12' },
+      { min: 7, text: '🔥 СЛОЖНО', color: '#e74c3c' },
+      { min: 9, text: '💀 ХАРД', color: '#8e44ad' },
+    ];
+    const lvl = levels.find(l => diffLevel >= l.min) || levels[0];
+    $diff.textContent = lvl.text;
+    $diff.style.background = lvl.color;
     
-    let dt = '⚡ ЛЕГКО', dc = '#27ae60';
-    if (difficultyLevel >= 8) { dt = '💀 ХАРД'; dc = '#8e44ad'; }
-    else if (difficultyLevel >= 6) { dt = '🔥 СЛОЖНО'; dc = '#e74c3c'; }
-    else if (difficultyLevel >= 4) { dt = '⚠️ СРЕДНЕ'; dc = '#f39c12'; }
-    diffSpan.textContent = dt;
-    diffSpan.style.background = dc;
+    $btnBuyLife.disabled = maxLives >= MAX_LIVES_CAP;
+    $btnBuyLife.textContent = maxLives >= MAX_LIVES_CAP ? '✓ Макс' : `+❤️ ${LIFE_COST}🪙`;
+    $btnShopLife.disabled = maxLives >= MAX_LIVES_CAP;
+    $btnShopLife.textContent = maxLives >= MAX_LIVES_CAP ? '✓ Максимум' : `${LIFE_COST} 🪙`;
   }
-
+  
+  function buyLife() {
+    if (maxLives >= MAX_LIVES_CAP) return;
+    if (totalCoins >= LIFE_COST) {
+      totalCoins -= LIFE_COST;
+      maxLives++;
+      player.hp = maxLives;
+      save();
+      updateUI();
+      renderShop();
+    } else {
+      alert(`Недостаточно монет! Нужно ${LIFE_COST} 🪙`);
+    }
+  }
+  
+  function buySkin(id) {
+    const skin = skins.find(s => s.id === id);
+    if (!skin || skin.owned) return;
+    if (totalCoins >= skin.cost) {
+      totalCoins -= skin.cost;
+      skin.owned = true;
+      equippedSkin = id;
+      save();
+      updateUI();
+      renderShop();
+    } else {
+      alert(`Недостаточно монет! Нужно ${skin.cost} 🪙`);
+    }
+  }
+  
+  function equipSkin(id) {
+    const skin = skins.find(s => s.id === id);
+    if (skin && skin.owned) {
+      equippedSkin = id;
+      save();
+      updateUI();
+      renderShop();
+    }
+  }
+  
   function renderShop() {
-    skinGrid.innerHTML = '';
+    $skinGrid.innerHTML = '';
     skins.forEach(skin => {
       const card = document.createElement('div');
       card.className = 'skin-card';
-      if (skin.id === equippedSkinId) card.classList.add('selected');
+      if (equippedSkin === skin.id) card.classList.add('active');
       if (!skin.owned) card.classList.add('locked');
       
       card.innerHTML = `
-        ${skin.vip ? '<div class="vip-badge">VIP</div>' : ''}
-        <div class="skin-preview" style="background:${skin.bodyColor}40; border:2px solid ${skin.bodyColor}">${skin.emoji}</div>
+        ${skin.vip ? '<div class="vip-tag">VIP</div>' : ''}
+        <span class="skin-emoji">${skin.emoji}</span>
         <div class="skin-name">${skin.name}</div>
-        ${skin.owned ? '<div class="skin-owned">✅</div>' : `<div class="skin-price">🪙 ${skin.price}</div>`}
+        <div class="skin-status ${skin.owned ? 'owned' : 'price'}">${skin.owned ? '✅ Выбрать' : `🪙 ${skin.cost}`}</div>
       `;
       
       card.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (skin.owned) equipSkin(skin.id);
-        else if (!buySkin(skin.id)) alert(`Нужно ${skin.price} 🪙`);
+        else buySkin(skin.id);
       });
       
-      skinGrid.appendChild(card);
+      $skinGrid.appendChild(card);
     });
-    
-    // Кнопка покупки жизни в магазине
-    if (MAX_LIVES >= ABSOLUTE_MAX_LIVES) {
-      lifeUpgradeBtn.innerHTML = '<span class="upgrade-owned">✅ Максимум</span>';
-    } else {
-      lifeUpgradeBtn.innerHTML = `<button class="upgrade-buy-btn" id="shopLifeBuyBtn">${LIFE_PRICE} 🪙</button>`;
-      
-      setTimeout(() => {
-        const btn = document.getElementById('shopLifeBuyBtn');
-        if (btn) {
-          btn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            buyExtraLife();
-          });
-        }
-      }, 50);
-    }
-  }
-
-  // ─── ИГРА ───
-  let gameActive = true;
-  let score = 0;
-  let survivalTime = 0;
-  let difficultyLevel = 1;
-  
-  const CEILING_LIMIT = 60;
-  const MAX_FLAPS = 5;
-  let flapCount = 0;
-  let flapResetTimer = 0;
-
-  const player = {
-    x: 85,
-    y: WORLD_H/2 - 22,
-    width: 40,
-    height: 40,
-    health: MAX_LIVES,
-    maxHealth: MAX_LIVES,
-    velocityY: 0,
-    gravity: 0.38,
-    flapPower: -6.5,
-    invincible: false,
-    invincibleTimer: 0
-  };
-
-  let obstacles = [];
-  let coins = [];
-  let spawnTimer = 0;
-  let coinTimer = 0;
-  const BASE_SPAWN = 55;
-  let currentSpawnDelay = BASE_SPAWN;
-  const BASE_COIN = 40;
-  let currentCoinDelay = BASE_COIN;
-  let baseSpeed = 4.0;
-  let currentSpeed = baseSpeed;
-  const MAX_SPEED = 12;
-  let flapRequested = false;
-  let effectParticles = [];
-
-  class Obstacle {
-    constructor(y, w, h, type, position) {
-      this.x = WORLD_W + 30;
-      this.y = y; this.width = w; this.height = h;
-      this.type = type; this.position = position;
-      this.active = true; this.passed = false;
-    }
   }
   
-  class Coin {
-    constructor(y) {
-      this.x = WORLD_W + 35;
-      this.y = y; this.radius = 13; this.active = true;
-    }
+  // ─── СТОЛКНОВЕНИЯ ───
+  function rectHit(a, b) {
+    return !(b.x > a.x + a.w || b.x + b.w < a.x || b.y > a.y + a.h || b.y + b.h < a.y);
   }
   
-  class Particle {
-    constructor(x, y, color, life) {
-      this.x = x; this.y = y; this.color = color;
-      this.life = life; this.maxLife = life;
-      this.vx = (Math.random()-0.5)*2;
-      this.vy = (Math.random()-0.5)*2 - 1;
-    }
-  }
-
-  function resetGame() {
-    gameActive = true;
-    player.health = MAX_LIVES;
-    player.maxHealth = MAX_LIVES;
-    player.y = WORLD_H/2 - 22;
-    player.velocityY = 0;
-    player.invincible = false;
-    player.invincibleTimer = 0;
-    obstacles = [];
-    coins = [];
-    effectParticles = [];
-    score = 0;
-    survivalTime = 0;
-    difficultyLevel = 1;
-    spawnTimer = 0;
-    coinTimer = 0;
-    currentSpeed = baseSpeed;
-    currentSpawnDelay = BASE_SPAWN;
-    currentCoinDelay = BASE_COIN;
-    flapCount = 0;
-    flapResetTimer = 0;
-    flapRequested = false;
-    updateUI();
-  }
-
-  function rectCollide(r1, r2) {
-    return !(r2.x > r1.x + r1.width || r2.x + r2.width < r1.x ||
-      r2.y > r1.y + r1.height || r2.y + r2.height < r1.y);
+  function circHit(x1, y1, r1, x2, y2, r2) {
+    return Math.hypot(x1 - x2, y1 - y2) < r1 + r2;
   }
   
-  function circleCollide(x1, y1, r1, x2, y2, r2) {
-    return Math.hypot(x1-x2, y1-y2) < r1+r2;
-  }
-
-  function damagePlayer(amount=1) {
-    if (!gameActive || player.invincible) return;
-    player.health -= amount;
-    player.invincible = true;
-    player.invincibleTimer = 40;
-    if (player.health <= 0) {
-      player.health = 0;
+  // ─── ИГРОВАЯ ЛОГИКА ───
+  function hurtPlayer() {
+    if (!gameActive || player.invTimer > 0) return;
+    player.hp--;
+    player.invTimer = 35;
+    if (player.hp <= 0) {
+      player.hp = 0;
       gameActive = false;
     }
     updateUI();
   }
-
-  function flap() {
+  
+  function doFlap() {
     if (!gameActive) return;
-    if (player.y <= CEILING_LIMIT + 20) {
-      player.velocityY = Math.max(player.velocityY, -3);
-      return;
-    }
-    if (flapCount >= MAX_FLAPS) return;
-    
-    player.velocityY = player.flapPower;
+    if (player.y <= CEILING + 20) { player.vy = Math.max(player.vy, -2); return; }
+    if (flapCount >= 5) return;
+    player.vy = player.jumpPower;
     flapCount++;
-    flapResetTimer = 20;
+    flapCooldown = 18;
     
-    const skin = getEquippedSkin();
-    if (skin.effect) {
-      for (let i=0; i<4; i++) {
-        effectParticles.push(new Particle(player.x + player.width/2, player.y + player.height, skin.bodyColor, 18));
-      }
+    const skin = getSkin();
+    for (let i = 0; i < 4; i++) {
+      particles.push({
+        x: player.x + player.w/2, y: player.y + player.h,
+        vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2 - 1,
+        life: 16, maxLife: 16, color: skin.body
+      });
     }
   }
-
+  
   function spawnObstacles() {
     if (!gameActive) return;
+    const count = diffLevel >= 7 ? 3 : 2;
+    const positions = ['top', 'bottom'];
+    if (count >= 3 || Math.random() < 0.3) positions.push('center');
     
-    const count = difficultyLevel >= 7 ? 3 : 2;
-    const positions = [];
-    
-    positions.push('top');
-    positions.push('bottom');
-    
-    if (count >= 3 || Math.random() < 0.3) {
-      positions.push('center');
-    }
-    
-    for (let i = 0; i < positions.length; i++) {
-      const pos = positions[i];
-      const r = Math.random();
+    positions.forEach((pos, i) => {
       let y, w, h, type;
+      const r = Math.random();
       
       if (pos === 'top') {
         w = 50 + Math.random() * 30;
-        h = 25 + Math.random() * 15;
-        y = CEILING_LIMIT + 10 + Math.random() * 60;
+        h = 24 + Math.random() * 16;
+        y = CEILING + 10 + Math.random() * 55;
         type = r < 0.5 ? 'car' : 'log';
       } else if (pos === 'bottom') {
         w = 50 + Math.random() * 30;
-        h = 25 + Math.random() * 15;
-        y = WORLD_H - 100 - h - Math.random() * 50;
+        h = 24 + Math.random() * 16;
+        y = GROUND_Y - h - Math.random() * 50;
         type = r < 0.5 ? 'car' : 'log';
       } else {
-        w = 22;
-        h = 50 + Math.random() * 40;
-        y = 220 + Math.random() * 160;
+        w = 20; h = 50 + Math.random() * 40;
+        y = 200 + Math.random() * 200;
         type = 'pole';
       }
       
-      const obs = new Obstacle(y, w, h, type, pos);
-      obs.x += i * 40;
-      obstacles.push(obs);
-    }
+      obstacles.push({
+        x: WORLD_W + 30 + i * 40, y, w, h, type, pos,
+        active: true, passed: false
+      });
+    });
   }
-
+  
   function spawnCoin() {
     if (!gameActive) return;
-    const y = 180 + Math.random() * 240;
-    coins.push(new Coin(y));
+    coins.push({
+      x: WORLD_W + 35,
+      y: 160 + Math.random() * 260,
+      r: 12, active: true
+    });
   }
-
-  function updateDifficulty() {
-    survivalTime++;
-    if (survivalTime % 240 === 0 && difficultyLevel < 10) {
-      difficultyLevel++;
-      updateUI();
-    }
-    currentSpeed = Math.min(MAX_SPEED, baseSpeed + (difficultyLevel-1)*0.7);
-    currentSpawnDelay = Math.max(28, BASE_SPAWN - (difficultyLevel-1)*3);
-    currentCoinDelay = Math.max(25, BASE_COIN - (difficultyLevel-1)*1.5);
-  }
-
+  
   function update() {
-    if (!gameActive) { flapRequested = false; return; }
+    if (!gameActive) { inputQueue.flap = false; return; }
     
-    updateDifficulty();
+    ticks++;
+    if (ticks % 220 === 0 && diffLevel < 10) { diffLevel++; updateUI(); }
+    worldSpeed = Math.min(12, 4.0 + (diffLevel-1) * 0.75);
     
-    if (flapResetTimer > 0) {
-      flapResetTimer--;
-      if (flapResetTimer <= 0) flapCount = 0;
-    }
+    if (flapCooldown > 0) { flapCooldown--; if (flapCooldown <= 0) flapCount = 0; }
+    if (inputQueue.flap) { doFlap(); inputQueue.flap = false; }
+    if (inputQueue.dive) { player.vy = 5; inputQueue.dive = false; }
     
-    if (flapRequested) { flap(); flapRequested = false; }
+    player.vy += player.gravity;
+    player.y += player.vy;
+    if (player.y < CEILING) { player.y = CEILING; player.vy = Math.max(0, player.vy); }
+    if (player.y + player.h > GROUND_Y) { player.y = GROUND_Y - player.h; player.vy = 0; flapCount = 0; }
     
-    player.velocityY += player.gravity;
-    player.y += player.velocityY;
+    if (player.invTimer > 0) player.invTimer--;
     
-    if (player.y < CEILING_LIMIT) {
-      player.y = CEILING_LIMIT;
-      player.velocityY = Math.max(0, player.velocityY);
-    }
-    
-    if (player.y + player.height > WORLD_H-75) { 
-      player.y = WORLD_H-75-player.height; 
-      player.velocityY = 0; 
-      flapCount = 0;
-    }
-    
-    if (player.invincible) {
-      player.invincibleTimer--;
-      if (player.invincibleTimer <= 0) player.invincible = false;
-    }
-    
-    for (let i = effectParticles.length-1; i >= 0; i--) {
-      const p = effectParticles[i];
+    // Частицы
+    for (let i = particles.length-1; i >= 0; i--) {
+      const p = particles[i];
       p.x += p.vx; p.y += p.vy; p.life--;
-      if (p.life <= 0) effectParticles.splice(i, 1);
+      if (p.life <= 0) particles.splice(i, 1);
     }
     
+    // Препятствия
     for (let i = obstacles.length-1; i >= 0; i--) {
-      const obs = obstacles[i];
-      obs.x -= currentSpeed;
-      if (!obs.passed && obs.x + obs.width < player.x) {
-        obs.passed = true;
-        score += 5;
-      }
-      if (obs.x + obs.width < -40) obstacles.splice(i, 1);
+      const o = obstacles[i];
+      o.x -= worldSpeed;
+      if (!o.passed && o.x + o.w < player.x) { o.passed = true; score += 5; }
+      if (o.x + o.w < -40) obstacles.splice(i, 1);
     }
     
+    // Монеты
     for (let i = coins.length-1; i >= 0; i--) {
       const c = coins[i];
-      c.x -= currentSpeed;
-      if (c.x + c.radius < -20) coins.splice(i, 1);
+      c.x -= worldSpeed;
+      if (c.x + c.r < -20) coins.splice(i, 1);
     }
     
-    const pRect = {x:player.x, y:player.y, width:player.width, height:player.height};
+    // Столкновения
+    const pr = { x: player.x, y: player.y, w: player.w, h: player.h };
     for (let i = obstacles.length-1; i >= 0; i--) {
-      const obs = obstacles[i];
-      if (rectCollide(pRect, {x:obs.x, y:obs.y, width:obs.width, height:obs.height})) {
-        damagePlayer(1);
-        obstacles.splice(i, 1);
-        break;
-      }
+      if (rectHit(pr, obstacles[i])) { hurtPlayer(); obstacles.splice(i, 1); break; }
     }
     
+    // Сбор монет
+    const pcx = player.x + player.w/2, pcy = player.y + player.h/2;
     for (let i = coins.length-1; i >= 0; i--) {
-      const c = coins[i];
-      if (circleCollide(player.x+player.width/2, player.y+player.height/2, 20, c.x, c.y, c.radius)) {
+      if (circHit(pcx, pcy, 20, coins[i].x, coins[i].y, coins[i].r)) {
         coins.splice(i, 1);
         totalCoins += 10;
         score += 15;
-        saveData();
+        save();
         updateUI();
       }
     }
     
-    spawnTimer--;
-    if (spawnTimer <= 0) {
+    if (--spawnTimer <= 0) {
       spawnObstacles();
-      spawnTimer = currentSpawnDelay + Math.floor(Math.random()*18);
+      spawnTimer = Math.max(26, 55 - diffLevel * 3) + Math.floor(Math.random() * 16);
     }
-    
-    coinTimer--;
-    if (coinTimer <= 0) {
+    if (--coinTimer <= 0) {
       spawnCoin();
-      coinTimer = currentCoinDelay + Math.floor(Math.random()*20);
-    }
-    
-    if (player.health <= 0) {
-      gameActive = false;
-      updateUI();
+      coinTimer = Math.max(24, 40 - diffLevel * 1.5) + Math.floor(Math.random() * 18);
     }
   }
-
-  function drawPlayer() {
-    const skin = getEquippedSkin();
-    ctx.save();
-    
-    if (player.invincible && Math.floor(Date.now()/100)%2===0) ctx.globalAlpha = 0.6;
-    
-    ctx.shadowColor = skin.vip ? '#ffd700' : skin.bodyColor;
-    ctx.shadowBlur = skin.vip ? 25 : 16;
-    
-    ctx.fillStyle = skin.bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(player.x, player.y, player.width, player.height, 14);
-    ctx.fill();
-    
-    ctx.fillStyle = skin.eyeColor;
-    ctx.beginPath();
-    ctx.roundRect(player.x+4, player.y+4, player.width-8, player.height-8, 10);
-    ctx.fill();
-    
-    ctx.fillStyle = 'white';
-    ctx.beginPath(); ctx.arc(player.x+12, player.y+16, 6, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(player.x+28, player.y+16, 6, 0, Math.PI*2); ctx.fill();
-    
-    ctx.fillStyle = '#1a1a2e';
-    ctx.beginPath(); ctx.arc(player.x+14, player.y+15, 3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(player.x+30, player.y+15, 3, 0, Math.PI*2); ctx.fill();
-    
-    if (skin.id === 'dragon') {
-      ctx.fillStyle = '#ff6b35';
-      ctx.beginPath(); ctx.moveTo(player.x+8, player.y+5); ctx.lineTo(player.x+4, player.y-8); ctx.lineTo(player.x+14, player.y+3); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(player.x+32, player.y+5); ctx.lineTo(player.x+36, player.y-8); ctx.lineTo(player.x+28, player.y+3); ctx.fill();
-    } else if (skin.id === 'robot') {
-      ctx.fillStyle = '#3498db';
-      ctx.fillRect(player.x+18, player.y-8, 4, 10);
-      ctx.beginPath(); ctx.arc(player.x+20, player.y-10, 4, 0, Math.PI*2); ctx.fill();
-    } else if (skin.id === 'unicorn') {
-      ctx.fillStyle = '#ffd700';
-      ctx.beginPath(); ctx.moveTo(player.x+20, player.y-10); ctx.lineTo(player.x+16, player.y+4); ctx.lineTo(player.x+24, player.y+4); ctx.fill();
-    }
-    
-    ctx.fillStyle = skin.vip ? '#ffd700' : '#f39c12';
-    ctx.beginPath();
-    ctx.moveTo(player.x+20, player.y+22); ctx.lineTo(player.x+14, player.y+28); ctx.lineTo(player.x+26, player.y+28);
-    ctx.closePath(); ctx.fill();
-    
-    if (skin.vip) {
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '16px sans-serif';
-      ctx.fillText('👑', player.x+10, player.y-8);
-    }
-    
-    ctx.restore();
-  }
-
+  
+  // ─── ОТРИСОВКА ───
   function draw() {
     ctx.clearRect(0, 0, WORLD_W, WORLD_H);
     
-    const grd = ctx.createLinearGradient(0, 0, WORLD_W, 0);
-    grd.addColorStop(0, '#1a2332'); grd.addColorStop(1, '#2d3a4f');
-    ctx.fillStyle = grd; ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+    // Фон
+    const grad = ctx.createLinearGradient(0, 0, WORLD_W, 0);
+    grad.addColorStop(0, '#1a2332'); grad.addColorStop(1, '#2d3a4f');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, WORLD_W, WORLD_H);
     
-    ctx.fillStyle = '#e74c3c10';
-    ctx.fillRect(0, CEILING_LIMIT, WORLD_W, 100);
+    // Зоны
+    ctx.fillStyle = 'rgba(231,76,60,0.06)';
+    ctx.fillRect(0, CEILING, WORLD_W, 100);
     ctx.fillRect(0, WORLD_H-170, WORLD_W, 100);
     
-    ctx.fillStyle = '#2ecc7120';
+    ctx.fillStyle = 'rgba(46,204,113,0.08)';
     ctx.fillRect(0, 200, WORLD_W, 200);
-    ctx.strokeStyle = '#2ecc7140';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 8]);
-    ctx.strokeRect(5, 200, WORLD_W-10, 200);
+    ctx.strokeStyle = 'rgba(46,204,113,0.2)';
+    ctx.lineWidth = 1; ctx.setLineDash([8, 8]);
+    ctx.strokeRect(3, 200, WORLD_W-6, 200);
     ctx.setLineDash([]);
     
-    ctx.fillStyle = '#e74c3c20';
-    ctx.fillRect(0, 0, WORLD_W, CEILING_LIMIT);
-    ctx.strokeStyle = '#e74c3c50';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 10]);
-    ctx.beginPath(); ctx.moveTo(0, CEILING_LIMIT); ctx.lineTo(WORLD_W, CEILING_LIMIT); ctx.stroke();
-    ctx.setLineDash([]);
-    
-    ctx.strokeStyle = '#3f5068'; ctx.lineWidth = 1.5;
-    for (let i=0; i<WORLD_H; i+=50) {
-      const off = (survivalTime*currentSpeed*0.3)%50;
-      ctx.beginPath(); ctx.moveTo(0, i+off); ctx.lineTo(WORLD_W, i+off-15); ctx.stroke();
+    // Линии движения
+    ctx.strokeStyle = '#3f5068'; ctx.lineWidth = 1;
+    for (let i = 0; i < WORLD_H; i += 45) {
+      const off = (ticks * worldSpeed * 0.3) % 45;
+      ctx.beginPath(); ctx.moveTo(0, i + off); ctx.lineTo(WORLD_W, i + off - 12); ctx.stroke();
     }
     
-    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(0, WORLD_H-70, WORLD_W, 70);
-    ctx.fillStyle = '#5e4a32'; ctx.fillRect(0, WORLD_H-70, WORLD_W, 6);
+    // Земля
+    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(0, GROUND_Y, WORLD_W, 70);
+    ctx.fillStyle = '#5e4a32'; ctx.fillRect(0, GROUND_Y, WORLD_W, 5);
     
-    for (let p of effectParticles) {
+    // Частицы
+    particles.forEach(p => {
       ctx.globalAlpha = p.life / p.maxLife;
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
-    }
+    });
     ctx.globalAlpha = 1;
     
-    for (let c of coins) {
+    // Монеты
+    coins.forEach(c => {
       ctx.save();
-      ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 14;
-      ctx.fillStyle = '#FFC107';
-      ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFA000';
-      ctx.beginPath(); ctx.arc(c.x-1, c.y-1, c.radius-4, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 15px sans-serif';
-      ctx.fillText('🪙', c.x-10, c.y+7);
+      ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 12;
+      ctx.fillStyle = '#FFC107'; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFA000'; ctx.beginPath(); ctx.arc(c.x-1, c.y-1, c.r-4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.fillText('🪙', c.x-9, c.y+6);
       ctx.restore();
-    }
+    });
     
-    for (let obs of obstacles) {
+    // Препятствия
+    obstacles.forEach(o => {
       ctx.save();
-      ctx.shadowColor = '#00000080'; ctx.shadowBlur = 12;
+      ctx.shadowColor = '#00000060'; ctx.shadowBlur = 10;
+      const colors = o.pos === 'top' ? ['#e74c3c','#c0392b'] : o.pos === 'bottom' ? ['#e67e22','#d35400'] : ['#8e44ad','#71368a'];
       
-      let color1, color2;
-      if (obs.position === 'top') {
-        color1 = '#e74c3c'; color2 = '#c0392b';
-      } else if (obs.position === 'bottom') {
-        color1 = '#e67e22'; color2 = '#d35400';
+      if (o.type === 'pole') {
+        ctx.fillStyle = colors[0]; ctx.fillRect(o.x, o.y, o.w, o.h);
+        ctx.fillStyle = colors[1]; ctx.fillRect(o.x+3, o.y+4, o.w-6, o.h-8);
+      } else if (o.type === 'car') {
+        ctx.fillStyle = colors[0]; ctx.fillRect(o.x, o.y, o.w, o.h);
+        ctx.fillStyle = colors[1]; ctx.fillRect(o.x+4, o.y+4, o.w-8, o.h-8);
+        ctx.fillStyle = '#f39c12'; ctx.font = '16px sans-serif'; ctx.fillText('🚗', o.x+10, o.y+22);
       } else {
-        color1 = '#8e44ad'; color2 = '#71368a';
-      }
-      
-      if (obs.type === 'pole') {
-        ctx.fillStyle = color1;
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-        ctx.fillStyle = color2;
-        ctx.fillRect(obs.x+3, obs.y+4, obs.width-6, obs.height-8);
-      } else if (obs.type === 'car') {
-        ctx.fillStyle = color1;
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-        ctx.fillStyle = color2;
-        ctx.fillRect(obs.x+4, obs.y+4, obs.width-8, obs.height-8);
-        ctx.fillStyle = '#f39c12';
-        ctx.font = '18px sans-serif';
-        ctx.fillText('🚗', obs.x+10, obs.y+26);
-      } else {
-        ctx.fillStyle = color1;
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-        ctx.fillStyle = color2;
-        ctx.fillRect(obs.x+4, obs.y+3, obs.width-8, obs.height-6);
+        ctx.fillStyle = colors[0]; ctx.fillRect(o.x, o.y, o.w, o.h);
+        ctx.fillStyle = colors[1]; ctx.fillRect(o.x+3, o.y+3, o.w-6, o.h-6);
       }
       ctx.restore();
+    });
+    
+    // Игрок
+    const skin = getSkin();
+    ctx.save();
+    if (player.invTimer > 0 && Math.floor(Date.now()/100)%2 === 0) ctx.globalAlpha = 0.55;
+    ctx.shadowColor = skin.vip ? '#ffd700' : skin.body;
+    ctx.shadowBlur = skin.vip ? 22 : 14;
+    
+    ctx.fillStyle = skin.body;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(player.x, player.y, player.w, player.h, 12);
+    else ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.fill();
+    
+    ctx.fillStyle = skin.eye;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(player.x+4, player.y+4, player.w-8, player.h-8, 8);
+    else ctx.fillRect(player.x+4, player.y+4, player.w-8, player.h-8);
+    ctx.fill();
+    
+    // Глаза
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(player.x+12, player.y+16, 5.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x+28, player.y+16, 5.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(player.x+13, player.y+15, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x+29, player.y+15, 2.5, 0, Math.PI*2); ctx.fill();
+    
+    // Клюв
+    ctx.fillStyle = skin.vip ? '#ffd700' : '#f39c12';
+    ctx.beginPath();
+    ctx.moveTo(player.x+20, player.y+22);
+    ctx.lineTo(player.x+14, player.y+27);
+    ctx.lineTo(player.x+26, player.y+27);
+    ctx.fill();
+    
+    if (skin.vip) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('👑', player.x+10, player.y-6);
     }
     
-    drawPlayer();
+    ctx.restore();
     
-    ctx.fillStyle = '#ffffff90';
-    ctx.font = 'bold 11px sans-serif';
+    // HUD
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`Скорость: ${currentSpeed.toFixed(1)}`, 10, CEILING_LIMIT+18);
-    ctx.fillText(`Жизни: ${player.health}/${MAX_LIVES}`, 10, CEILING_LIMIT+34);
+    ctx.fillText(`Скорость: ${worldSpeed.toFixed(1)}`, 8, CEILING + 16);
+    ctx.fillText(`HP: ${player.hp}/${maxLives}`, 8, CEILING + 30);
     
+    // Game Over
     if (!gameActive) {
-      ctx.globalAlpha = 0.85;
-      ctx.fillStyle = '#0b0e14';
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
       ctx.fillRect(0, 0, WORLD_W, WORLD_H);
-      ctx.globalAlpha = 1;
       ctx.fillStyle = '#f7da6c';
       ctx.font = 'bold 28px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('💔 ИГРА ОКОНЧЕНА', WORLD_W/2, WORLD_H/2-30);
-      ctx.font = '18px sans-serif';
-      ctx.fillText(`Счёт: ${score} | Монет: ${totalCoins}`, WORLD_W/2, WORLD_H/2+15);
-      ctx.font = '14px sans-serif';
-      ctx.fillText('Нажми СТАРТ для новой игры', WORLD_W/2, WORLD_H/2+40);
+      ctx.fillText('💔 ИГРА ОКОНЧЕНА', WORLD_W/2, WORLD_H/2-25);
+      ctx.font = '16px sans-serif';
+      ctx.fillText(`Счёт: ${score} | Монеты: ${totalCoins}`, WORLD_W/2, WORLD_H/2+20);
+      ctx.font = '13px sans-serif';
+      ctx.fillText('Нажмите 🔄 для рестарта', WORLD_W/2, WORLD_H/2+50);
     }
   }
-
+  
+  // ─── ИГРОВОЙ ЦИКЛ ───
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+  
+  // ─── СОБЫТИЯ ───
+  function setupEvents() {
+    const $up = document.getElementById('btnUp');
+    const $down = document.getElementById('btnDown');
+    const $life = document.getElementById('btnLife');
+    const $restart = document.getElementById('btnRestart');
+    const $shopBtn = document.getElementById('btnShop');
+    const $close = document.getElementById('btnCloseShop');
+    
+    $up.addEventListener('pointerdown', e => { e.preventDefault(); inputQueue.flap = true; });
+    $down.addEventListener('pointerdown', e => { e.preventDefault(); inputQueue.dive = true; });
+    $life.addEventListener('pointerdown', e => { e.preventDefault(); buyLife(); });
+    $restart.addEventListener('pointerdown', e => { e.preventDefault(); resetGame(); });
+    $shopBtn.addEventListener('pointerdown', e => { e.preventDefault(); $shop.classList.toggle('show'); if ($shop.classList.contains('show')) renderShop(); });
+    $close.addEventListener('pointerdown', e => { e.preventDefault(); $shop.classList.remove('show'); });
+    $btnBuyLife.addEventListener('pointerdown', e => { e.preventDefault(); buyLife(); });
+    $btnShopLife.addEventListener('pointerdown', e => { e.preventDefault(); buyLife(); });
+    
+    // Клавиатура
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault(); inputQueue.flap = true;
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault(); inputQueue.dive = true;
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault(); resetGame();
+      } else if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault(); buyLife();
+      }
+    });
+    
+    // Тач по канвасу
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const scaleY = WORLD_H / rect.height;
+      const touchY = (e.touches[0].clientY - rect.top) * scaleY;
+      if (touchY < WORLD_H * 0.5) inputQueue.flap = true;
+      else inputQueue.dive = true;
+    }, { passive: false });
+    
+    canvas.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const scaleY = WORLD_H / rect.height;
+      const mouseY = (e.clientY - rect.top) * scaleY;
+      if (mouseY < WORLD_H * 0.5) inputQueue.flap = true;
+      else inputQueue.dive = true;
+    });
+    
+    // Закрытие магазина по клику вне его
+    document.addEventListener('pointerdown', e => {
+      if ($shop.classList.contains('show') && !$shop.contains(e.target) && e.target !== document.getElementById('btnShop')) {
+        $shop.classList.remove('show');
+      }
+    });
+  }
+  
+  // ─── ПОЛИФИЛЛ ───
   if (!ctx.roundRect) {
     ctx.roundRect = function(x, y, w, h, r) {
-      if (typeof r === 'number') r = {tl: r, tr: r, br: r, bl: r};
+      if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
       ctx.beginPath();
-      ctx.moveTo(x + r.tl, y); ctx.lineTo(x + w - r.tr, y);
+      ctx.moveTo(x + r.tl, y);
+      ctx.lineTo(x + w - r.tr, y);
       ctx.quadraticCurveTo(x + w, y, x + w, y + r.tr);
       ctx.lineTo(x + w, y + h - r.br);
       ctx.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
@@ -1050,107 +972,13 @@
       ctx.closePath();
     };
   }
-
-  let lastTime = 0;
-  function gameLoop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    
-    const delta = timestamp - lastTime;
-    const maxUpdates = 2;
-    const updateCount = Math.min(maxUpdates, Math.floor(delta / 16));
-    
-    for (let i = 0; i < updateCount; i++) {
-      update();
-    }
-    
-    draw();
-    lastTime = timestamp;
-    requestAnimationFrame(gameLoop);
-  }
-
-  function getGameCoordinates(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const canvasX = clientX - rect.left;
-    const canvasY = clientY - rect.top;
-    return {
-      x: canvasX / scaleX,
-      y: canvasY / scaleY
-    };
-  }
-
-  function attachEvents() {
-    document.getElementById('upBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      flapRequested = true;
-    });
-    
-    document.getElementById('downBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      if (gameActive) player.velocityY = 5;
-    });
-    
-    document.getElementById('restartBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      resetGame();
-    });
-    
-    document.getElementById('shopToggleBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      shopPanel.classList.toggle('active');
-      if (shopPanel.classList.contains('active')) renderShop();
-    });
-    
-    document.getElementById('closeShopBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      shopPanel.classList.remove('active');
-    });
-    
-    // Кнопка покупки жизни
-    buyLifeBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      buyExtraLife();
-    });
-    
-    quickLifeBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      buyExtraLife();
-    });
-    
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp' || e.key === ' ' || e.code === 'Space') {
-        e.preventDefault(); flapRequested = true;
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault(); if (gameActive) player.velocityY = 5;
-      } else if (e.key === 'r' || e.key === 'R') {
-        e.preventDefault(); resetGame();
-      } else if (e.key === 'l' || e.key === 'L') {
-        e.preventDefault(); buyExtraLife();
-      }
-    });
-    
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const gameCoords = getGameCoordinates(touch.clientX, touch.clientY);
-      if (gameCoords.y < WORLD_H * 0.5) flapRequested = true;
-      else if (gameActive) player.velocityY = 5;
-    }, {passive: false});
-    
-    canvas.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      const gameCoords = getGameCoordinates(e.clientX, e.clientY);
-      if (gameCoords.y < WORLD_H * 0.5) flapRequested = true;
-      else if (gameActive) player.velocityY = 5;
-    });
-  }
-
-  player.health = MAX_LIVES;
-  player.maxHealth = MAX_LIVES;
+  
+  // ─── ЗАПУСК ───
+  resetGame();
   updateUI();
   renderShop();
-  attachEvents();
-  requestAnimationFrame(gameLoop);
+  setupEvents();
+  requestAnimationFrame(loop);
 })();
 </script>
 </body>
