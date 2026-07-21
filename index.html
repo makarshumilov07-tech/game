@@ -51,9 +51,6 @@
       background: #0f1822;
       box-shadow: 0 0 30px rgba(0,0,0,0.5);
       touch-action: none;
-      will-change: transform;
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
     }
     .top-buttons {
       position: absolute;
@@ -85,32 +82,44 @@
       background: rgba(255,255,255,0.3);
       transform: scale(0.95);
     }
-    .install-btn {
+    
+    /* Кнопка установки PWA */
+    .pwa-install-btn {
       position: absolute;
-      top: 10px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(180deg, #f0a04b, #d68910);
-      color: #1a1a2e;
-      padding: 8px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 24px;
       border-radius: 30px;
       font-weight: bold;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      z-index: 25;
-      border: none;
+      z-index: 30;
+      border: 2px solid rgba(255,255,255,0.3);
       display: none;
-      box-shadow: 0 4px 15px rgba(240,160,75,0.5);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
       pointer-events: auto;
-      animation: pulse 2s infinite;
+      animation: pwaPulse 2s infinite;
       white-space: nowrap;
       letter-spacing: 0.5px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-    .install-btn.show { display: block; }
-    @keyframes pulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
+    .pwa-install-btn.show {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+    .pwa-install-btn .pwa-icon {
+      font-size: 1.3rem;
+    }
+    @keyframes pwaPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5); }
+      50% { box-shadow: 0 4px 35px rgba(102, 126, 234, 0.8); }
+    }
+    
     .ui-layer {
       position: absolute;
       bottom: 0;
@@ -158,8 +167,6 @@
       box-shadow: 0 4px 0 rgba(0,0,0,0.3);
       display: flex; align-items: center; justify-content: center; gap: 4px;
       flex: 1; min-width: 45px; max-width: 110px; padding: 12px 8px; font-size: 0.8rem;
-      transition: transform 0.05s;
-      -webkit-tap-highlight-color: transparent;
     }
     .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
     .btn-up { background: linear-gradient(180deg, #4CAF50, #2E7D32); color: #fff; }
@@ -174,7 +181,6 @@
       background: #1e2a3a; border-radius: 16px; padding: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 20; pointer-events: auto; max-height: 60vh; overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
     }
     .shop-overlay.show { display: block; }
     .shop-title { color: #f7da6c; font-weight: bold; font-size: 1rem; text-align: center; margin-bottom: 10px; }
@@ -210,7 +216,7 @@
       pointer-events: none;
     }
     @media (display-mode: standalone) {
-      .install-btn { display: none !important; }
+      .pwa-install-btn { display: none !important; }
     }
   </style>
 </head>
@@ -218,7 +224,10 @@
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
   
-  <button class="install-btn" id="btnInstall">📲 Установить игру</button>
+  <!-- Кнопка установки PWA -->
+  <button class="pwa-install-btn" id="pwaInstallBtn">
+    <span class="pwa-icon">📲</span> Установить приложение
+  </button>
   
   <div class="top-buttons">
     <button class="icon-btn" id="btnFullscreen" title="Полный экран (F)">⛶</button>
@@ -267,7 +276,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swCode = `
-      const CACHE = 'flappy-v7';
+      const CACHE = 'flappy-v8';
       self.addEventListener('install', e => self.skipWaiting());
       self.addEventListener('activate', e => e.waitUntil(clients.claim()));
       self.addEventListener('fetch', e => {
@@ -281,37 +290,54 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ─── PWA Install ───
+// ─── PWA Install Prompt ───
 let deferredPrompt;
-const btnInstall = document.getElementById('btnInstall');
+const pwaInstallBtn = document.getElementById('pwaInstallBtn');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  btnInstall.classList.add('show');
-});
-
-btnInstall.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') btnInstall.classList.remove('show');
-  deferredPrompt = null;
-});
-
-window.addEventListener('appinstalled', () => {
-  btnInstall.classList.remove('show');
-  deferredPrompt = null;
-});
-
+// Проверяем, не установлено ли уже приложение
 if (window.matchMedia('(display-mode: standalone)').matches) {
-  btnInstall.classList.remove('show');
+  pwaInstallBtn.style.display = 'none';
 }
 
-// ─── ОПТИМИЗИРОВАННАЯ ИГРА ДЛЯ ТЕЛЕФОНА ───
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Предотвращаем автоматическое появление диалога
+  e.preventDefault();
+  // Сохраняем событие для использования позже
+  deferredPrompt = e;
+  // Показываем нашу кастомную кнопку
+  pwaInstallBtn.classList.add('show');
+});
+
+pwaInstallBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) {
+    alert('Установка недоступна. Возможно, приложение уже установлено или ваш браузер не поддерживает PWA.');
+    return;
+  }
+  
+  // Показываем системный диалог установки
+  deferredPrompt.prompt();
+  
+  // Ждем ответа пользователя
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  console.log(`Пользователь ${outcome === 'accepted' ? 'установил' : 'отклонил'} приложение`);
+  
+  // Скрываем кнопку после использования
+  pwaInstallBtn.classList.remove('show');
+  deferredPrompt = null;
+});
+
+// Скрываем кнопку после успешной установки
+window.addEventListener('appinstalled', () => {
+  console.log('Приложение успешно установлено!');
+  pwaInstallBtn.classList.remove('show');
+  deferredPrompt = null;
+});
+
+// ─── ИГРА ───
 (function() {
   const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+  const ctx = canvas.getContext('2d', { alpha: false });
   const container = document.getElementById('gameContainer');
   const hintText = document.getElementById('hintText');
   
@@ -328,11 +354,6 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
   let currentWorldW = WORLD_W;
   let currentWorldH = WORLD_H;
   let isLandscape = false;
-  
-  // Используем requestAnimationFrame с дельта-таймингом
-  let lastTime = 0;
-  let accumulator = 0;
-  const fixedDt = 1000 / 60;
   
   function resize() {
     const cw = container.clientWidth;
@@ -485,7 +506,6 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     worldSpeed = 4.0;
     inputQueue = { flap: false, dive: false };
     hintText.style.display = 'none';
-    accumulator = 0;
     updateUI();
   }
   
@@ -616,7 +636,7 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     coins.push({x:spawnX, y:currentWorldH/2-100+Math.random()*200, r:12, active:true});
   }
   
-  function update(dt) {
+  function update() {
     if (!gameActive) { inputQueue.flap = false; return; }
     ticks++;
     if (ticks%220===0 && diffLevel<10) { diffLevel++; updateUI(); }
@@ -626,18 +646,15 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     if (inputQueue.flap) { doFlap(); inputQueue.flap = false; }
     if (inputQueue.dive) { player.vy = 5.5; inputQueue.dive = false; }
     
-    // Плавное движение с учетом дельты времени
-    const speedFactor = dt / fixedDt;
-    player.vy += player.gravity * speedFactor;
-    player.y += player.vy * speedFactor;
-    
+    player.vy += player.gravity;
+    player.y += player.vy;
     if (player.y<CEILING) { player.y=CEILING; player.vy=Math.max(0,player.vy); }
     if (player.y+player.h>GROUND_Y) { player.y=GROUND_Y-player.h; player.vy=0; flapCount=0; }
     if (player.invTimer>0) player.invTimer--;
     
-    for (let i=particles.length-1;i>=0;i--) { const p=particles[i]; p.x+=p.vx*speedFactor; p.y+=p.vy*speedFactor; p.life--; if (p.life<=0) particles.splice(i,1); }
-    for (let i=obstacles.length-1;i>=0;i--) { const o=obstacles[i]; o.x-=worldSpeed*speedFactor; if (!o.passed&&o.x+o.w<player.x) { o.passed=true; score+=5; } if (o.x+o.w<-40) obstacles.splice(i,1); }
-    for (let i=coins.length-1;i>=0;i--) { const c=coins[i]; c.x-=worldSpeed*speedFactor; if (c.x+c.r<-20) coins.splice(i,1); }
+    for (let i=particles.length-1;i>=0;i--) { const p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.life--; if (p.life<=0) particles.splice(i,1); }
+    for (let i=obstacles.length-1;i>=0;i--) { const o=obstacles[i]; o.x-=worldSpeed; if (!o.passed&&o.x+o.w<player.x) { o.passed=true; score+=5; } if (o.x+o.w<-40) obstacles.splice(i,1); }
+    for (let i=coins.length-1;i>=0;i--) { const c=coins[i]; c.x-=worldSpeed; if (c.x+c.r<-20) coins.splice(i,1); }
     
     const pr = {x:player.x,y:player.y,w:player.w,h:player.h};
     for (let i=obstacles.length-1;i>=0;i--) { if (rectHit(pr,obstacles[i])) { hurtPlayer(); obstacles.splice(i,1); break; } }
@@ -812,26 +829,7 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     };
   }
   
-  function loop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    
-    let dt = timestamp - lastTime;
-    lastTime = timestamp;
-    
-    // Ограничиваем dt для предотвращения больших скачков
-    if (dt > 100) dt = 100;
-    
-    accumulator += dt;
-    
-    // Фиксированный шаг обновления для стабильности
-    while (accumulator >= fixedDt) {
-      update(fixedDt);
-      accumulator -= fixedDt;
-    }
-    
-    draw();
-    requestAnimationFrame(loop);
-  }
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
   
   function setupEvents() {
     const buttons = {
