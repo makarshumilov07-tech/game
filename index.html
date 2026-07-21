@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -83,7 +84,7 @@
       transform: scale(0.95);
     }
     
-    /* Кнопка установки PWA */
+    /* Кнопка установки PWA - всегда видна */
     .pwa-install-btn {
       position: absolute;
       top: 12px;
@@ -91,33 +92,30 @@
       transform: translateX(-50%);
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 10px 24px;
+      padding: 12px 28px;
       border-radius: 30px;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       cursor: pointer;
       z-index: 30;
       border: 2px solid rgba(255,255,255,0.3);
-      display: none;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+      box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6);
       pointer-events: auto;
       animation: pwaPulse 2s infinite;
       white-space: nowrap;
       letter-spacing: 0.5px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-    }
-    .pwa-install-btn.show {
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .pwa-install-btn .pwa-icon {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
     }
     @keyframes pwaPulse {
-      0%, 100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5); }
-      50% { box-shadow: 0 4px 35px rgba(102, 126, 234, 0.8); }
+      0%, 100% { box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6); transform: translateX(-50%) scale(1); }
+      50% { box-shadow: 0 4px 40px rgba(102, 126, 234, 0.9); transform: translateX(-50%) scale(1.03); }
     }
     
     .ui-layer {
@@ -224,7 +222,7 @@
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
   
-  <!-- Кнопка установки PWA -->
+  <!-- Кнопка установки PWA - всегда видна -->
   <button class="pwa-install-btn" id="pwaInstallBtn">
     <span class="pwa-icon">📲</span> Установить приложение
   </button>
@@ -276,7 +274,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swCode = `
-      const CACHE = 'flappy-v8';
+      const CACHE = 'flappy-v9';
       self.addEventListener('install', e => self.skipWaiting());
       self.addEventListener('activate', e => e.waitUntil(clients.claim()));
       self.addEventListener('fetch', e => {
@@ -290,49 +288,71 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ─── PWA Install Prompt ───
+// ─── PWA Install - Принудительное отображение ───
 let deferredPrompt;
 const pwaInstallBtn = document.getElementById('pwaInstallBtn');
 
-// Проверяем, не установлено ли уже приложение
+// Функция для установки PWA
+async function installPWA() {
+  if (deferredPrompt) {
+    // Используем нативный диалог
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA установка: ${outcome}`);
+    deferredPrompt = null;
+    
+    if (outcome === 'accepted') {
+      pwaInstallBtn.style.display = 'none';
+    }
+  } else {
+    // Резервный метод - показываем инструкцию
+    showInstallInstructions();
+  }
+}
+
+// Показываем инструкцию по установке
+function showInstallInstructions() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isDesktop = !isIOS && !isAndroid;
+  
+  let message = '';
+  if (isIOS) {
+    message = '📱 Чтобы установить:\n1. Нажмите кнопку "Поделиться"\n2. Выберите "На экран «Домой»"\n3. Нажмите "Добавить"';
+  } else if (isAndroid) {
+    message = '📱 Чтобы установить:\n1. Откройте меню браузера (⋮)\n2. Выберите "Установить приложение"\n3. Нажмите "Установить"';
+  } else {
+    message = '💻 Чтобы установить:\n1. Нажмите на значок ⊕ в адресной строке\n2. Выберите "Установить"';
+  }
+  alert(message);
+}
+
+// Обработчик клика по кнопке
+pwaInstallBtn.addEventListener('click', installPWA);
+
+// Слушаем событие beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log('PWA: beforeinstallprompt сработал');
+});
+
+// Скрываем кнопку после установки
+window.addEventListener('appinstalled', () => {
+  console.log('PWA: приложение установлено');
+  pwaInstallBtn.style.display = 'none';
+  deferredPrompt = null;
+});
+
+// Проверяем, установлено ли уже приложение
 if (window.matchMedia('(display-mode: standalone)').matches) {
   pwaInstallBtn.style.display = 'none';
 }
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Предотвращаем автоматическое появление диалога
-  e.preventDefault();
-  // Сохраняем событие для использования позже
-  deferredPrompt = e;
-  // Показываем нашу кастомную кнопку
-  pwaInstallBtn.classList.add('show');
-});
-
-pwaInstallBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) {
-    alert('Установка недоступна. Возможно, приложение уже установлено или ваш браузер не поддерживает PWA.');
-    return;
-  }
-  
-  // Показываем системный диалог установки
-  deferredPrompt.prompt();
-  
-  // Ждем ответа пользователя
-  const { outcome } = await deferredPrompt.userChoice;
-  
-  console.log(`Пользователь ${outcome === 'accepted' ? 'установил' : 'отклонил'} приложение`);
-  
-  // Скрываем кнопку после использования
-  pwaInstallBtn.classList.remove('show');
-  deferredPrompt = null;
-});
-
-// Скрываем кнопку после успешной установки
-window.addEventListener('appinstalled', () => {
-  console.log('Приложение успешно установлено!');
-  pwaInstallBtn.classList.remove('show');
-  deferredPrompt = null;
-});
+// Показываем кнопку принудительно через 1 секунду после загрузки
+setTimeout(() => {
+  pwaInstallBtn.style.display = 'flex';
+}, 1000);
 
 // ─── ИГРА ───
 (function() {
