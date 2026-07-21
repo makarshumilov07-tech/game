@@ -82,6 +82,34 @@
       background: rgba(255,255,255,0.3);
       transform: scale(0.95);
     }
+    .install-btn {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #f0a04b, #d68910);
+      color: #1a1a2e;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      cursor: pointer;
+      z-index: 25;
+      border: none;
+      display: none;
+      box-shadow: 0 4px 15px rgba(240,160,75,0.5);
+      pointer-events: auto;
+      animation: pulse 2s infinite;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+    .install-btn.show {
+      display: block;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
+    }
     .ui-layer {
       position: absolute;
       bottom: 0;
@@ -229,11 +257,16 @@
       font-size: 0.8rem;
       pointer-events: none;
     }
+    @media (display-mode: standalone) {
+      .install-btn { display: none !important; }
+    }
   </style>
 </head>
 <body>
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
+  
+  <button class="install-btn" id="btnInstall">📲 Установить игру</button>
   
   <div class="top-buttons">
     <button class="icon-btn" id="btnFullscreen" title="Полный экран (F)">⛶</button>
@@ -282,7 +315,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swCode = `
-      const CACHE = 'flappy-v5';
+      const CACHE = 'flappy-v6';
       self.addEventListener('install', e => self.skipWaiting());
       self.addEventListener('activate', e => e.waitUntil(clients.claim()));
       self.addEventListener('fetch', e => {
@@ -296,6 +329,36 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ─── PWA Install Prompt ───
+let deferredPrompt;
+const btnInstall = document.getElementById('btnInstall');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.classList.add('show');
+});
+
+btnInstall.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    btnInstall.classList.remove('show');
+  }
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  btnInstall.classList.remove('show');
+  deferredPrompt = null;
+});
+
+// Скрываем кнопку если уже в standalone режиме
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  btnInstall.classList.remove('show');
+}
+
 // ─── ИГРА ───
 (function() {
   const canvas = document.getElementById('gameCanvas');
@@ -306,7 +369,6 @@ if ('serviceWorker' in navigator) {
   const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || 
                    ('ontouchstart' in window && window.innerWidth < 1024);
   
-  // Базовые размеры
   const WORLD_W = 400;
   const WORLD_H = 600;
   const LIFE_COST = 500;
@@ -324,7 +386,6 @@ if ('serviceWorker' in navigator) {
     
     isLandscape = cw > ch;
     
-    // В ландшафтном режиме расширяем мир по горизонтали
     if (isLandscape) {
       currentWorldW = Math.max(WORLD_W, Math.floor(WORLD_H * (cw / ch)));
       currentWorldH = WORLD_H;
@@ -356,7 +417,6 @@ if ('serviceWorker' in navigator) {
     canvas.style.width = displayW + 'px';
     canvas.style.height = displayH + 'px';
     
-    // Обновляем позицию игрока при изменении размеров
     if (gameActive || !gameStarted) {
       player.y = Math.min(player.y, GROUND_Y - player.h);
       player.y = Math.max(player.y, CEILING);
@@ -366,7 +426,6 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', () => setTimeout(resize, 150));
   
-  // Fullscreen
   document.getElementById('btnFullscreen').addEventListener('click', () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -591,7 +650,6 @@ if ('serviceWorker' in navigator) {
       else if (pos==='bottom') { w=50+Math.random()*30; h=24+Math.random()*16; y=GROUND_Y-h-Math.random()*50; type=r<0.5?'car':'log'; }
       else { w=20; h=50+Math.random()*40; y=currentWorldH/2-h/2+Math.random()*100-50; type='pole'; }
       
-      // В ландшафтном режиме спавним дальше впереди
       const spawnX = isLandscape ? currentWorldW + 50 : currentWorldW + 30;
       obstacles.push({x:spawnX+i*40, y, w, h, type, pos, active:true, passed:false});
     });
