@@ -139,10 +139,13 @@
       box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
       transition: 0.2s;
     }
+    .btn-install:hover {
+      transform: scale(1.02);
+    }
     .btn-install:active {
       transform: scale(0.95);
     }
-    .btn-install.loading {
+    .btn-install.downloading {
       background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
       pointer-events: none;
     }
@@ -159,7 +162,7 @@
       color: #fff;
       border-color: #888;
     }
-    .install-progress {
+    .download-progress {
       width: 100%;
       height: 6px;
       background: rgba(255,255,255,0.1);
@@ -168,15 +171,15 @@
       overflow: hidden;
       display: none;
     }
-    .install-progress.show {
+    .download-progress.show {
       display: block;
     }
-    .install-progress-bar {
+    .download-progress-bar {
       height: 100%;
       background: linear-gradient(90deg, #667eea, #764ba2);
       border-radius: 3px;
       width: 0%;
-      transition: width 0.3s;
+      transition: width 0.2s;
     }
     
     .ui-layer {
@@ -287,20 +290,20 @@
   <div class="install-overlay" id="installOverlay">
     <div class="install-dialog">
       <span class="install-icon">🐤</span>
-      <div class="install-title">Установить Flappy Road?</div>
+      <div class="install-title">Скачать Flappy Road</div>
       <div class="install-text">
-        Играйте в любое время, даже без интернета! Игра будет работать как обычное приложение.
+        Игра сохранится на ваш компьютер как HTML-файл. Запускайте в любое время без интернета!
       </div>
       <div class="install-buttons">
-        <button class="btn-install" id="btnInstallApp">
-          📲 Установить
+        <button class="btn-install" id="btnDownloadApp">
+          💾 Скачать игру
         </button>
-        <button class="btn-skip" id="btnSkipInstall">
+        <button class="btn-skip" id="btnSkipDownload">
           Играть в браузере
         </button>
       </div>
-      <div class="install-progress" id="installProgress">
-        <div class="install-progress-bar" id="installProgressBar"></div>
+      <div class="download-progress" id="downloadProgress">
+        <div class="download-progress-bar" id="downloadProgressBar"></div>
       </div>
     </div>
   </div>
@@ -348,11 +351,56 @@
 </div>
 
 <script>
+// ─── ФУНКЦИЯ СКАЧИВАНИЯ ИГРЫ ───
+function downloadGame() {
+  const btnDownload = document.getElementById('btnDownloadApp');
+  const progressBar = document.getElementById('downloadProgressBar');
+  const progressContainer = document.getElementById('downloadProgress');
+  const installOverlay = document.getElementById('installOverlay');
+  
+  // Меняем кнопку на статус загрузки
+  btnDownload.textContent = '⏳ Загрузка...';
+  btnDownload.classList.add('downloading');
+  progressContainer.classList.add('show');
+  
+  // Имитируем прогресс загрузки
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 25;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      progressBar.style.width = '100%';
+      
+      // Создаем и скачиваем файл
+      setTimeout(() => {
+        const gameHTML = document.documentElement.outerHTML;
+        const blob = new Blob(['<!DOCTYPE html>\n' + gameHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'flappy-road.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Показываем успешное завершение
+        btnDownload.textContent = '✅ Скачано!';
+        setTimeout(() => {
+          installOverlay.style.display = 'none';
+        }, 1500);
+      }, 500);
+    }
+    progressBar.style.width = progress + '%';
+  }, 200);
+}
+
 // ─── PWA Service Worker ───
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swCode = `
-      const CACHE = 'flappy-v10';
+      const CACHE = 'flappy-v11';
       self.addEventListener('install', e => self.skipWaiting());
       self.addEventListener('activate', e => e.waitUntil(clients.claim()));
       self.addEventListener('fetch', e => {
@@ -366,86 +414,49 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ─── PWA Install Dialog ───
+// ─── PWA Install ───
 let deferredPrompt;
 const installOverlay = document.getElementById('installOverlay');
-const btnInstallApp = document.getElementById('btnInstallApp');
-const btnSkipInstall = document.getElementById('btnSkipInstall');
-const installProgress = document.getElementById('installProgress');
-const installProgressBar = document.getElementById('installProgressBar');
+const btnDownloadApp = document.getElementById('btnDownloadApp');
+const btnSkipDownload = document.getElementById('btnSkipDownload');
 
 // Проверяем, установлено ли уже приложение
 if (window.matchMedia('(display-mode: standalone)').matches) {
   installOverlay.style.display = 'none';
 }
 
-// Сохраняем событие установки
+// Сохраняем событие установки для мобильных
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 });
 
-// Функция имитации загрузки
-function simulateDownload() {
-  return new Promise((resolve) => {
-    installProgress.classList.add('show');
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 30;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setTimeout(resolve, 300);
-      }
-      installProgressBar.style.width = progress + '%';
-    }, 300);
-  });
-}
-
-// Обработчик кнопки "Установить"
-btnInstallApp.addEventListener('click', async () => {
-  btnInstallApp.textContent = '⏳ Загрузка...';
-  btnInstallApp.classList.add('loading');
-  btnSkipInstall.style.display = 'none';
+// Кнопка скачивания
+btnDownloadApp.addEventListener('click', () => {
+  // Определяем устройство
+  const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
   
-  // Имитируем загрузку
-  await simulateDownload();
-  
-  if (deferredPrompt) {
-    // Показываем системный диалог установки
+  if (isMobile && deferredPrompt) {
+    // На мобильном показываем нативный диалог PWA
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('PWA установлено успешно');
-      installOverlay.style.display = 'none';
-    } else {
-      // Если отклонили - возвращаем кнопки
-      btnInstallApp.textContent = '📲 Установить';
-      btnInstallApp.classList.remove('loading');
-      btnSkipInstall.style.display = 'block';
-      installProgress.classList.remove('show');
-      installProgressBar.style.width = '0%';
-    }
-    deferredPrompt = null;
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        installOverlay.style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
   } else {
-    // Если нативный диалог недоступен
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS) {
-      alert('📱 iOS: Нажмите кнопку "Поделиться" (↙️) и выберите "На экран «Домой»"');
-    } else {
-      alert('📱 Откройте меню браузера и выберите "Установить приложение"');
-    }
-    installOverlay.style.display = 'none';
+    // На ПК или если PWA недоступен - скачиваем HTML файл
+    downloadGame();
   }
 });
 
-// Обработчик кнопки "Играть в браузере"
-btnSkipInstall.addEventListener('click', () => {
+// Кнопка пропуска
+btnSkipDownload.addEventListener('click', () => {
   installOverlay.style.display = 'none';
 });
 
-// Скрываем окно после установки
+// Скрываем окно после установки PWA
 window.addEventListener('appinstalled', () => {
   installOverlay.style.display = 'none';
 });
