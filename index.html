@@ -4,26 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- PWA Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Flappy Road">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d1117">
-  <meta name="description" content="Flappy Road - захватывающая аркадная игра">
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json">
-  
-  <!-- iOS Splash Screen -->
-  <link rel="apple-touch-startup-image" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600'%3E%3Crect width='400' height='600' fill='%230d1117'/%3E%3Ctext x='200' y='300' font-size='60' text-anchor='middle' fill='white'%3E🐤%3C/text%3E%3C/svg%3E">
-  
-  <!-- Apple Touch Icons -->
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect width='192' height='192' rx='40' fill='%231a2332'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle'%3E🐤%3C/text%3E%3C/svg%3E">
   
   <title>Flappy Road</title>
   <style>
-    /* Ваши существующие стили */
     * {
       margin: 0;
       padding: 0;
@@ -62,23 +50,25 @@
       box-shadow: 0 0 30px rgba(0,0,0,0.5);
       touch-action: none;
     }
+    
     .top-buttons {
       position: absolute;
       top: 10px;
       right: 10px;
       display: flex;
-      gap: 6px;
+      gap: 8px;
       z-index: 15;
       pointer-events: auto;
     }
+    
     .icon-btn {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border: none;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.2);
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -89,140 +79,15 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     
-    /* PWA Update Banner */
-    .pwa-update-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 200;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      animation: slideDown 0.5s ease-out;
-      display: none;
-    }
-    
-    @keyframes slideDown {
-      from { transform: translateY(-100%); }
-      to { transform: translateY(0); }
-    }
-    
-    .pwa-install-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-      animation: slideUp 0.5s ease-out;
-      display: none;
-    }
-    
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-    
-    .pwa-banner-content {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-    }
-    
-    .pwa-icon {
-      font-size: 2.5rem;
-    }
-    
-    .pwa-text {
-      flex: 1;
-    }
-    
-    .pwa-title {
-      font-weight: bold;
-      font-size: 1.1rem;
-      margin-bottom: 4px;
-    }
-    
-    .pwa-subtitle {
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-    
-    .pwa-buttons {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .pwa-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.2s;
-      white-space: nowrap;
-    }
-    
-    .pwa-btn-install, .pwa-btn-update {
-      background: white;
-      color: #667eea;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    
-    .pwa-btn-install:hover, .pwa-btn-update:hover {
+    .icon-btn:hover {
+      background: rgba(255,255,255,0.3);
       transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
     
-    .pwa-btn-install:active, .pwa-btn-update:active {
-      transform: scale(0.95);
+    .icon-btn:active {
+      transform: scale(0.9);
     }
     
-    .pwa-btn-dismiss {
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-    
-    /* Оффлайн индикатор */
-    .offline-indicator {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #e74c3c;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      z-index: 150;
-      display: none;
-      animation: fadeIn 0.3s ease-out;
-    }
-    
-    .offline-indicator.online {
-      background: #27ae60;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    
-    /* Остальные стили из оригинального кода */
     .ui-layer {
       position: absolute;
       bottom: 0;
@@ -235,10 +100,88 @@
       padding: 6px;
       pointer-events: none;
     }
-    /* ... (все остальные стили из вашего кода) ... */
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 0 8px;
+      pointer-events: auto;
+    }
+    .hearts-container { display: flex; align-items: center; gap: 6px; }
+    .hearts { font-size: 1.3rem; letter-spacing: 3px; line-height: 1; }
+    .btn-buy-life {
+      background: #e74c3c; color: #fff; border: none;
+      padding: 4px 10px; border-radius: 15px; font-size: 0.7rem;
+      font-weight: bold; cursor: pointer; white-space: nowrap;
+      box-shadow: 0 2px 0 #a93226;
+    }
+    .btn-buy-life:active { transform: translateY(2px); box-shadow: none; }
+    .btn-buy-life:disabled { opacity: 0.4; pointer-events: none; }
+    .diff-badge { color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+    .coins-badge {
+      background: #f0a04b; color: #161c28; padding: 5px 14px;
+      border-radius: 30px; font-weight: 800; font-size: 0.85rem;
+      box-shadow: 0 0 10px rgba(240,160,75,0.5);
+    }
+    .btn-row {
+      display: flex; gap: 8px; width: 100%; max-width: 500px;
+      justify-content: center; padding: 0 8px; pointer-events: auto;
+    }
+    .btn {
+      border: none; font-weight: bold; text-transform: uppercase;
+      border-radius: 40px; cursor: pointer;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      flex: 1; min-width: 45px; max-width: 110px; padding: 12px 8px; font-size: 0.8rem;
+    }
+    .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+    .btn-up { background: linear-gradient(180deg, #4CAF50, #2E7D32); color: #fff; }
+    .btn-down { background: linear-gradient(180deg, #2196F3, #1565C0); color: #fff; }
+    .btn-life { background: linear-gradient(180deg, #e74c3c, #a93226); color: #fff; max-width: 60px; }
+    .btn-restart { background: linear-gradient(180deg, #FF9800, #E65100); color: #fff; max-width: 60px; }
+    .btn-shop { background: linear-gradient(180deg, #9C27B0, #6A1B9A); color: #fff; max-width: 60px; }
     
-    @media (display-mode: standalone) {
-      .pwa-install-banner { display: none !important; }
+    .shop-overlay {
+      display: none; position: absolute; bottom: 90px; left: 50%;
+      transform: translateX(-50%); width: 95%; max-width: 420px;
+      background: #1e2a3a; border-radius: 16px; padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 20; pointer-events: auto; max-height: 60vh; overflow-y: auto;
+    }
+    .shop-overlay.show { display: block; }
+    .shop-title { color: #f7da6c; font-weight: bold; font-size: 1rem; text-align: center; margin-bottom: 10px; }
+    .shop-section { margin-bottom: 14px; }
+    .shop-section-title { color: #aaa; font-size: 0.7rem; margin-bottom: 8px; padding-left: 4px; text-transform: uppercase; }
+    .skin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .skin-card {
+      background: #232d3d; border-radius: 12px; padding: 8px 4px; text-align: center;
+      cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative;
+    }
+    .skin-card.active { border-color: #f7da6c; box-shadow: 0 0 15px rgba(247,218,108,0.5); background: #2a3550; }
+    .skin-card.locked { opacity: 0.6; }
+    .skin-card.vip-card { border: 2px solid #ffd700; background: #2a1f3d; }
+    .skin-emoji { font-size: 1.6rem; display: block; margin-bottom: 2px; }
+    .skin-name { color: #ddd; font-size: 0.6rem; font-weight: bold; }
+    .skin-rarity { font-size: 0.5rem; margin: 1px 0; font-weight: bold; }
+    .rarity-common { color: #95a5a6; } .rarity-rare { color: #3498db; } .rarity-epic { color: #9b59b6; } .rarity-legendary { color: #f39c12; }
+    .skin-status { font-size: 0.55rem; margin-top: 2px; }
+    .skin-status.owned { color: #27ae60; } .skin-status.price { color: #f0a04b; }
+    .vip-tag { position: absolute; top: -5px; right: -5px; background: #ffd700; color: #000; border-radius: 8px; padding: 1px 5px; font-size: 0.5rem; font-weight: bold; z-index: 1; }
+    .upgrade-row { background: #232d3d; border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+    .upgrade-info { display: flex; align-items: center; gap: 8px; }
+    .upgrade-info span { font-size: 1.5rem; }
+    .upgrade-text strong { color: #ddd; font-size: 0.8rem; }
+    .upgrade-text small { color: #999; font-size: 0.6rem; display: block; }
+    .btn-upgrade { background: #e74c3c; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.7rem; cursor: pointer; }
+    .btn-upgrade:disabled { opacity: 0.4; }
+    .btn-close-shop { background: #555; color: #fff; border: none; padding: 10px 24px; border-radius: 20px; font-weight: bold; cursor: pointer; display: block; margin: 12px auto 0; font-size: 0.8rem; }
+    .hint-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(255,255,255,0.3); font-size: 0.8rem;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -246,261 +189,608 @@
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
   
-  <!-- Оффлайн индикатор -->
-  <div class="offline-indicator" id="offlineIndicator">📡 Оффлайн режим</div>
-  
-  <!-- Баннер обновления PWA -->
-  <div class="pwa-update-banner" id="pwaUpdateBanner">
-    <div class="pwa-banner-content">
-      <span class="pwa-icon">🔄</span>
-      <div class="pwa-text">
-        <div class="pwa-title">Доступно обновление!</div>
-        <div class="pwa-subtitle">Новая версия игры готова к установке</div>
-      </div>
-    </div>
-    <div class="pwa-buttons">
-      <button class="pwa-btn pwa-btn-update" id="btnPwaUpdate">Обновить</button>
-      <button class="pwa-btn pwa-btn-dismiss" id="btnPwaUpdateDismiss">Позже</button>
-    </div>
-  </div>
-  
-  <!-- PWA Install Banner -->
-  <div class="pwa-install-banner" id="pwaInstallBanner">
-    <div class="pwa-banner-content">
-      <span class="pwa-icon">🐤</span>
-      <div class="pwa-text">
-        <div class="pwa-title">Установить Flappy Road</div>
-        <div class="pwa-subtitle">Играйте без интернета в любое время!</div>
-      </div>
-    </div>
-    <div class="pwa-buttons">
-      <button class="pwa-btn pwa-btn-install" id="btnPwaInstall">Установить</button>
-      <button class="pwa-btn pwa-btn-dismiss" id="btnPwaDismiss">Нет</button>
-    </div>
-  </div>
-  
+  <!-- Только кнопка полного экрана -->
   <div class="top-buttons">
-    <button class="icon-btn" id="btnFullscreen" title="Полный экран (F)">⛶</button>
-    <button class="icon-btn" id="btnShare" title="Поделиться">📤</button>
+    <button class="icon-btn" id="btnFullscreen" title="Полный экран">⛶</button>
   </div>
   
-  <!-- Остальной UI из вашего кода -->
   <div class="ui-layer">
-    <!-- ... -->
+    <div class="stats-row">
+      <div class="hearts-container">
+        <span class="hearts" id="heartsDisplay">❤️❤️❤️</span>
+        <button class="btn-buy-life" id="btnBuyLife" title="Купить жизнь (500 монет)">+❤️</button>
+      </div>
+      <span class="diff-badge" id="diffDisplay">⚡ ЛЕГКО</span>
+      <span class="coins-badge" id="coinsDisplay">🪙 0</span>
+    </div>
+    
+    <div class="btn-row">
+      <button class="btn btn-up" id="btnUp">⬆️ ВВЕРХ</button>
+      <button class="btn btn-down" id="btnDown">⬇️ ВНИЗ</button>
+      <button class="btn btn-life" id="btnLife">❤️</button>
+      <button class="btn btn-restart" id="btnRestart">🔄</button>
+      <button class="btn btn-shop" id="btnShop">🛒</button>
+    </div>
   </div>
+  
+  <div class="shop-overlay" id="shopOverlay">
+    <div class="shop-title">🛍️ МАГАЗИН СКИНОВ</div>
+    <div class="shop-section">
+      <div class="shop-section-title">💎 Улучшения</div>
+      <div class="upgrade-row">
+        <div class="upgrade-info"><span>❤️</span><div class="upgrade-text"><strong>Дополнительная жизнь</strong><small>Максимум 5</small></div></div>
+        <button class="btn-upgrade" id="btnShopLife">500 🪙</button>
+      </div>
+    </div>
+    <div class="shop-section">
+      <div class="shop-section-title">🎨 Скины персонажей</div>
+      <div class="skin-grid" id="skinGrid"></div>
+    </div>
+    <button class="btn-close-shop" id="btnCloseShop">✕ Закрыть магазин</button>
+  </div>
+  
+  <div class="hint-text" id="hintText">ПРОБЕЛ / СТРЕЛКА ВВЕРХ</div>
 </div>
 
 <script>
-// ─── Расширенный PWA Service Worker ───
-if ('serviceWorker' in navigator) {
-  const CACHE_NAME = 'flappy-road-v2';
-  const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/manifest.json'
-  ];
-
-  const swCode = `
-    const CACHE = '${CACHE_NAME}';
+// ─── ИГРА ───
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const container = document.getElementById('gameContainer');
+  const hintText = document.getElementById('hintText');
+  
+  const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || 
+                   ('ontouchstart' in window && window.innerWidth < 1024);
+  
+  const WORLD_W = 400;
+  const WORLD_H = 600;
+  const LIFE_COST = 500;
+  const MAX_LIVES_CAP = 5;
+  
+  let CEILING = 55;
+  let GROUND_Y = WORLD_H - 70;
+  let currentWorldW = WORLD_W;
+  let currentWorldH = WORLD_H;
+  let isLandscape = false;
+  
+  function resize() {
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
     
-    // Установка Service Worker
-    self.addEventListener('install', event => {
-      event.waitUntil(
-        caches.open(CACHE).then(cache => {
-          return cache.addAll(${JSON.stringify(ASSETS_TO_CACHE)});
-        })
-      );
-      self.skipWaiting();
+    isLandscape = cw > ch;
+    
+    if (isLandscape) {
+      currentWorldW = Math.max(WORLD_W, Math.floor(WORLD_H * (cw / ch)));
+      currentWorldH = WORLD_H;
+    } else {
+      currentWorldW = WORLD_W;
+      currentWorldH = WORLD_H;
+    }
+    
+    CEILING = isLandscape ? 40 : 55;
+    GROUND_Y = currentWorldH - (isLandscape ? 50 : 70);
+    
+    const uiHeight = 90;
+    const availH = ch - uiHeight;
+    const availW = cw;
+    const ratio = currentWorldW / currentWorldH;
+    
+    let displayW, displayH;
+    
+    if (availW / availH > ratio) {
+      displayH = availH;
+      displayW = displayH * ratio;
+    } else {
+      displayW = availW;
+      displayH = displayW / ratio;
+    }
+    
+    canvas.width = currentWorldW;
+    canvas.height = currentWorldH;
+    canvas.style.width = displayW + 'px';
+    canvas.style.height = displayH + 'px';
+    
+    if (gameActive || !gameStarted) {
+      player.y = Math.min(player.y, GROUND_Y - player.h);
+      player.y = Math.max(player.y, CEILING);
+    }
+  }
+  
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+  
+  document.getElementById('btnFullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  });
+  
+  const $hearts = document.getElementById('heartsDisplay');
+  const $coins = document.getElementById('coinsDisplay');
+  const $diff = document.getElementById('diffDisplay');
+  const $shop = document.getElementById('shopOverlay');
+  const $skinGrid = document.getElementById('skinGrid');
+  const $btnBuyLife = document.getElementById('btnBuyLife');
+  const $btnShopLife = document.getElementById('btnShopLife');
+  
+  let totalCoins = 0;
+  let maxLives = 3;
+  let equippedSkin = 'default';
+  
+  const skins = [
+    { id: 'default', name: 'Птенчик', emoji: '🐤', cost: 0, owned: true, body: '#4ecdc4', eye: '#44bd9e', rarity: 'common', effect: null },
+    { id: 'dragon', name: 'Дракон', emoji: '🐲', cost: 80, owned: false, body: '#e74c3c', eye: '#ff6b35', rarity: 'rare', effect: 'fire' },
+    { id: 'robot', name: 'Робот', emoji: '🤖', cost: 120, owned: false, body: '#7f8c8d', eye: '#3498db', rarity: 'rare', effect: 'electric' },
+    { id: 'ninja', name: 'Ниндзя', emoji: '🥷', cost: 150, owned: false, body: '#2c3e50', eye: '#e74c3c', rarity: 'epic', effect: 'shadow' },
+    { id: 'unicorn', name: 'Единорог', emoji: '🦄', cost: 200, owned: false, body: '#e8a0bf', eye: '#9b59b6', rarity: 'epic', effect: 'sparkle' },
+    { id: 'phoenix', name: '👑 Феникс', emoji: '🔥', cost: 350, owned: false, body: '#ff6b35', eye: '#ffd700', rarity: 'legendary', effect: 'phoenix', vip: true },
+    { id: 'alien', name: 'Пришелец', emoji: '👽', cost: 180, owned: false, body: '#2ecc71', eye: '#27ae60', rarity: 'rare', effect: 'toxic' },
+    { id: 'shark', name: 'Акула', emoji: '🦈', cost: 220, owned: false, body: '#5d6d7e', eye: '#e74c3c', rarity: 'epic', effect: 'water' },
+    { id: 'panda', name: 'Панда', emoji: '🐼', cost: 160, owned: false, body: '#ecf0f1', eye: '#2c3e50', rarity: 'rare', effect: null },
+    { id: 'tiger', name: 'Тигр', emoji: '🐯', cost: 250, owned: false, body: '#f39c12', eye: '#e74c3c', rarity: 'epic', effect: 'fire' },
+    { id: 'ghost', name: 'Призрак', emoji: '👻', cost: 280, owned: false, body: '#bdc3c7', eye: '#8e44ad', rarity: 'epic', effect: 'shadow' },
+    { id: 'cyber', name: 'Кибер', emoji: '🦾', cost: 400, owned: false, body: '#00ffff', eye: '#ff00ff', rarity: 'legendary', effect: 'electric', vip: true },
+  ];
+  
+  function load() {
+    try {
+      totalCoins = parseInt(localStorage.flappyCoins || '0');
+      maxLives = Math.min(MAX_LIVES_CAP, Math.max(3, parseInt(localStorage.flappyMaxLives || '3')));
+      equippedSkin = localStorage.flappySkin || 'default';
+      skins.forEach(s => {
+        if (s.id !== 'default') s.owned = localStorage['flappy_own_' + s.id] === 'true';
+      });
+    } catch(e) {}
+  }
+  
+  function save() {
+    try {
+      localStorage.flappyCoins = totalCoins;
+      localStorage.flappyMaxLives = maxLives;
+      localStorage.flappySkin = equippedSkin;
+      skins.forEach(s => {
+        if (s.id !== 'default') localStorage['flappy_own_' + s.id] = s.owned;
+      });
+    } catch(e) {}
+  }
+  
+  load();
+  
+  function getSkin() { return skins.find(s => s.id === equippedSkin) || skins[0]; }
+  
+  let gameActive = false;
+  let score = 0;
+  let ticks = 0;
+  let diffLevel = 1;
+  let flapCount = 0;
+  let flapCooldown = 0;
+  let inputQueue = { flap: false, dive: false };
+  
+  const player = {
+    x: 85, y: 0, w: 40, h: 40,
+    vy: 0, hp: 3, invTimer: 0,
+    gravity: 0.35,
+    jumpPower: isMobile ? -8.2 : -7.0,
+    maxFlaps: isMobile ? 7 : 5
+  };
+  
+  let obstacles = [];
+  let coins = [];
+  let particles = [];
+  let spawnTimer = 0;
+  let coinTimer = 0;
+  let worldSpeed = 4.0;
+  let gameStarted = false;
+  
+  function resetGame() {
+    gameActive = true;
+    gameStarted = true;
+    player.y = currentWorldH/2 - 22;
+    player.vy = 0;
+    player.hp = maxLives;
+    player.invTimer = 0;
+    obstacles = [];
+    coins = [];
+    particles = [];
+    score = 0;
+    ticks = 0;
+    diffLevel = 1;
+    flapCount = 0;
+    flapCooldown = 0;
+    spawnTimer = 0;
+    coinTimer = 0;
+    worldSpeed = 4.0;
+    inputQueue = { flap: false, dive: false };
+    hintText.style.display = 'none';
+    updateUI();
+  }
+  
+  function updateUI() {
+    let h = '';
+    for (let i = 0; i < maxLives; i++) h += i < player.hp ? '❤️' : '🖤';
+    $hearts.textContent = h;
+    $coins.textContent = `🪙 ${totalCoins}`;
+    
+    const lvls = [{min:1,t:'⚡ ЛЕГКО',c:'#27ae60'},{min:4,t:'⚠️ СРЕДНЕ',c:'#f39c12'},{min:7,t:'🔥 СЛОЖНО',c:'#e74c3c'},{min:9,t:'💀 ХАРД',c:'#8e44ad'}];
+    const l = lvls.find(x => diffLevel >= x.min) || lvls[0];
+    $diff.textContent = l.t; $diff.style.background = l.c;
+    
+    $btnBuyLife.disabled = maxLives >= MAX_LIVES_CAP;
+    $btnBuyLife.textContent = maxLives >= MAX_LIVES_CAP ? '✓ Макс' : `+❤️ ${LIFE_COST}🪙`;
+    $btnShopLife.disabled = maxLives >= MAX_LIVES_CAP;
+    $btnShopLife.textContent = maxLives >= MAX_LIVES_CAP ? '✓ Максимум' : `${LIFE_COST} 🪙`;
+  }
+  
+  function buyLife() {
+    if (maxLives >= MAX_LIVES_CAP) return;
+    if (totalCoins >= LIFE_COST) {
+      totalCoins -= LIFE_COST;
+      maxLives++;
+      player.hp = maxLives;
+      save();
+      updateUI();
+      renderShop();
+    } else alert(`Нужно ${LIFE_COST} 🪙`);
+  }
+  
+  function buySkin(id) {
+    const s = skins.find(x => x.id === id);
+    if (!s || s.owned) return;
+    if (totalCoins >= s.cost) {
+      totalCoins -= s.cost;
+      s.owned = true;
+      equippedSkin = id;
+      save();
+      updateUI();
+      renderShop();
+    } else alert(`Нужно ${s.cost} 🪙`);
+  }
+  
+  function equipSkin(id) {
+    const s = skins.find(x => x.id === id);
+    if (s && s.owned) { equippedSkin = id; save(); updateUI(); renderShop(); }
+  }
+  
+  function renderShop() {
+    $skinGrid.innerHTML = '';
+    skins.forEach(skin => {
+      const card = document.createElement('div');
+      card.className = 'skin-card';
+      if (equippedSkin === skin.id) card.classList.add('active');
+      if (!skin.owned) card.classList.add('locked');
+      if (skin.vip) card.classList.add('vip-card');
+      
+      card.innerHTML = `
+        ${skin.vip ? '<div class="vip-tag">VIP</div>' : ''}
+        <span class="skin-emoji">${skin.emoji}</span>
+        <div class="skin-name">${skin.name}</div>
+        <div class="skin-rarity rarity-${skin.rarity}">${skin.rarity === 'common' ? 'Обычный' : skin.rarity === 'rare' ? 'Редкий' : skin.rarity === 'epic' ? 'Эпический' : 'Легендарный'}</div>
+        <div class="skin-status ${skin.owned ? 'owned' : 'price'}">${skin.owned ? '✅' : `🪙${skin.cost}`}</div>
+      `;
+      
+      card.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        skin.owned ? equipSkin(skin.id) : buySkin(skin.id);
+      });
+      
+      $skinGrid.appendChild(card);
     });
-
-    // Активация и очистка старых кэшей
-    self.addEventListener('activate', event => {
-      event.waitUntil(
-        caches.keys().then(cacheNames => {
-          return Promise.all(
-            cacheNames
-              .filter(cacheName => cacheName !== CACHE)
-              .map(cacheName => caches.delete(cacheName))
-          );
-        }).then(() => {
-          return clients.claim();
-        })
-      );
+  }
+  
+  function rectHit(a,b) { return !(b.x>a.x+a.w||b.x+b.w<a.x||b.y>a.y+a.h||b.y+b.h<a.y); }
+  function circHit(x1,y1,r1,x2,y2,r2) { return Math.hypot(x1-x2,y1-y2)<r1+r2; }
+  
+  function hurtPlayer() {
+    if (!gameActive || player.invTimer > 0) return;
+    player.hp--;
+    player.invTimer = 35;
+    if (player.hp <= 0) { player.hp = 0; gameActive = false; }
+    updateUI();
+  }
+  
+  function doFlap() {
+    if (!gameActive) return;
+    if (player.y <= CEILING + 15) { player.vy = Math.max(player.vy, -2); return; }
+    if (flapCount >= player.maxFlaps) return;
+    player.vy = player.jumpPower;
+    flapCount++;
+    flapCooldown = 16;
+    const skin = getSkin();
+    if (skin.effect) {
+      for (let i=0;i<5;i++) {
+        particles.push({
+          x:player.x+player.w/2, y:player.y+player.h,
+          vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2-1,
+          life:18, maxLife:18, color:skin.body
+        });
+      }
+    }
+  }
+  
+  function spawnObstacles() {
+    if (!gameActive) return;
+    const count = diffLevel >= 7 ? 3 : 2;
+    const positions = ['top','bottom'];
+    if (count >= 3 || Math.random() < 0.3) positions.push('center');
+    
+    positions.forEach((pos,i) => {
+      let y,w,h,type;
+      const r = Math.random();
+      if (pos==='top') { w=50+Math.random()*30; h=24+Math.random()*16; y=CEILING+10+Math.random()*55; type=r<0.5?'car':'log'; }
+      else if (pos==='bottom') { w=50+Math.random()*30; h=24+Math.random()*16; y=GROUND_Y-h-Math.random()*50; type=r<0.5?'car':'log'; }
+      else { w=20; h=50+Math.random()*40; y=currentWorldH/2-h/2+Math.random()*100-50; type='pole'; }
+      
+      const spawnX = isLandscape ? currentWorldW + 50 : currentWorldW + 30;
+      obstacles.push({x:spawnX+i*40, y, w, h, type, pos, active:true, passed:false});
     });
-
-    // Стратегия кэширования: Network First с fallback на кэш
-    self.addEventListener('fetch', event => {
-      event.respondWith(
-        fetch(event.request)
-          .then(response => {
-            // Кэшируем успешные GET-запросы
-            if (event.request.method === 'GET' && response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(CACHE).then(cache => {
-                cache.put(event.request, responseClone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            // При ошибке сети - отдаем из кэша
-            return caches.match(event.request).then(cached => {
-              if (cached) return cached;
-              
-              // Оффлайн fallback для HTML
-              if (event.request.headers.get('accept').includes('text/html')) {
-                return caches.match('/index.html');
-              }
-              
-              return new Response('Оффлайн - нет соединения', {
-                status: 503,
-                statusText: 'Service Unavailable'
-              });
-            });
-          })
-      );
+  }
+  
+  function spawnCoin() {
+    if (!gameActive) return;
+    const spawnX = isLandscape ? currentWorldW + 50 : currentWorldW + 35;
+    coins.push({x:spawnX, y:currentWorldH/2-100+Math.random()*200, r:12, active:true});
+  }
+  
+  function update() {
+    if (!gameActive) { inputQueue.flap = false; return; }
+    ticks++;
+    if (ticks%220===0 && diffLevel<10) { diffLevel++; updateUI(); }
+    worldSpeed = Math.min(12, 4.0 + (diffLevel-1)*0.75);
+    
+    if (flapCooldown>0) { flapCooldown--; if (flapCooldown<=0) flapCount=0; }
+    if (inputQueue.flap) { doFlap(); inputQueue.flap = false; }
+    if (inputQueue.dive) { player.vy = 5.5; inputQueue.dive = false; }
+    
+    player.vy += player.gravity;
+    player.y += player.vy;
+    if (player.y<CEILING) { player.y=CEILING; player.vy=Math.max(0,player.vy); }
+    if (player.y+player.h>GROUND_Y) { player.y=GROUND_Y-player.h; player.vy=0; flapCount=0; }
+    if (player.invTimer>0) player.invTimer--;
+    
+    for (let i=particles.length-1;i>=0;i--) { const p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.life--; if (p.life<=0) particles.splice(i,1); }
+    for (let i=obstacles.length-1;i>=0;i--) { const o=obstacles[i]; o.x-=worldSpeed; if (!o.passed&&o.x+o.w<player.x) { o.passed=true; score+=5; } if (o.x+o.w<-40) obstacles.splice(i,1); }
+    for (let i=coins.length-1;i>=0;i--) { const c=coins[i]; c.x-=worldSpeed; if (c.x+c.r<-20) coins.splice(i,1); }
+    
+    const pr = {x:player.x,y:player.y,w:player.w,h:player.h};
+    for (let i=obstacles.length-1;i>=0;i--) { if (rectHit(pr,obstacles[i])) { hurtPlayer(); obstacles.splice(i,1); break; } }
+    
+    const pcx=player.x+player.w/2, pcy=player.y+player.h/2;
+    for (let i=coins.length-1;i>=0;i--) { if (circHit(pcx,pcy,20,coins[i].x,coins[i].y,coins[i].r)) { coins.splice(i,1); totalCoins+=10; score+=15; save(); updateUI(); } }
+    
+    if (--spawnTimer<=0) { spawnObstacles(); spawnTimer=Math.max(26,55-diffLevel*3)+Math.floor(Math.random()*16); }
+    if (--coinTimer<=0) { spawnCoin(); coinTimer=Math.max(24,40-diffLevel*1.5)+Math.floor(Math.random()*18); }
+  }
+  
+  function drawPlayer() {
+    const skin = getSkin();
+    ctx.save();
+    
+    if (player.invTimer > 0 && Math.floor(Date.now()/100) % 2 === 0) ctx.globalAlpha = 0.5;
+    
+    let glowSize = 14;
+    if (skin.rarity === 'rare') glowSize = 18;
+    else if (skin.rarity === 'epic') glowSize = 22;
+    else if (skin.rarity === 'legendary') glowSize = 28;
+    
+    ctx.shadowColor = skin.rarity === 'legendary' ? '#ffd700' : skin.body;
+    ctx.shadowBlur = glowSize;
+    
+    ctx.fillStyle = skin.body;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(player.x, player.y, player.w, player.h, 12);
+    else ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.fill();
+    
+    ctx.fillStyle = skin.eye;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(player.x+4, player.y+4, player.w-8, player.h-8, 8);
+    else ctx.fillRect(player.x+4, player.y+4, player.w-8, player.h-8);
+    ctx.fill();
+    
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(player.x+12, player.y+16, 5.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x+28, player.y+16, 5.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(player.x+14, player.y+15, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x+30, player.y+15, 2.5, 0, Math.PI*2); ctx.fill();
+    
+    ctx.fillStyle = skin.vip ? '#ffd700' : '#f39c12';
+    ctx.beginPath();
+    ctx.moveTo(player.x+20, player.y+22);
+    ctx.lineTo(player.x+14, player.y+27);
+    ctx.lineTo(player.x+26, player.y+27);
+    ctx.fill();
+    
+    if (skin.vip) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('👑', player.x+10, player.y-10);
+    }
+    
+    ctx.restore();
+  }
+  
+  function draw() {
+    ctx.clearRect(0,0,currentWorldW,currentWorldH);
+    
+    const grad = ctx.createLinearGradient(0,0,currentWorldW,0);
+    grad.addColorStop(0,'#1a2332'); grad.addColorStop(1,'#2d3a4f');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,currentWorldW,currentWorldH);
+    
+    ctx.fillStyle = 'rgba(231,76,60,0.06)';
+    ctx.fillRect(0,CEILING,currentWorldW,currentWorldH*0.15);
+    ctx.fillRect(0,currentWorldH*0.75,currentWorldW,currentWorldH*0.25);
+    
+    const safeTop = currentWorldH*0.2;
+    const safeH = currentWorldH*0.6;
+    ctx.fillStyle = 'rgba(46,204,113,0.08)';
+    ctx.fillRect(0,safeTop,currentWorldW,safeH);
+    ctx.strokeStyle = 'rgba(46,204,113,0.2)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([8,8]);
+    ctx.strokeRect(3,safeTop,currentWorldW-6,safeH);
+    ctx.setLineDash([]);
+    
+    ctx.strokeStyle = '#3f5068'; ctx.lineWidth = 1;
+    for (let i=0;i<currentWorldH;i+=45) {
+      const off = (ticks*worldSpeed*0.3)%45;
+      ctx.beginPath();
+      ctx.moveTo(0,i+off);
+      ctx.lineTo(currentWorldW,i+off-12);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(0,GROUND_Y,currentWorldW,currentWorldH-GROUND_Y);
+    ctx.fillStyle = '#5e4a32';
+    ctx.fillRect(0,GROUND_Y,currentWorldW,5);
+    
+    particles.forEach(p => {
+      ctx.globalAlpha = p.life/p.maxLife;
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill();
     });
-
-    // Обработка сообщений от клиента
-    self.addEventListener('message', event => {
-      if (event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
+    ctx.globalAlpha = 1;
+    
+    coins.forEach(c => {
+      ctx.save();
+      ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 12;
+      ctx.fillStyle = '#FFC107';
+      ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFA000';
+      ctx.beginPath(); ctx.arc(c.x-1,c.y-1,c.r-4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('🪙',c.x-9,c.y+6);
+      ctx.restore();
+    });
+    
+    obstacles.forEach(o => {
+      ctx.save();
+      ctx.shadowColor = '#00000060'; ctx.shadowBlur = 10;
+      const cl = o.pos==='top' ? ['#e74c3c','#c0392b'] : o.pos==='bottom' ? ['#e67e22','#d35400'] : ['#8e44ad','#71368a'];
+      
+      if (o.type==='pole') {
+        ctx.fillStyle = cl[0]; ctx.fillRect(o.x,o.y,o.w,o.h);
+        ctx.fillStyle = cl[1]; ctx.fillRect(o.x+3,o.y+4,o.w-6,o.h-8);
+      } else if (o.type==='car') {
+        ctx.fillStyle = cl[0]; ctx.fillRect(o.x,o.y,o.w,o.h);
+        ctx.fillStyle = cl[1]; ctx.fillRect(o.x+4,o.y+4,o.w-8,o.h-8);
+        ctx.fillStyle = '#f39c12';
+        ctx.font = '16px sans-serif';
+        ctx.fillText('🚗',o.x+10,o.y+22);
+      } else {
+        ctx.fillStyle = cl[0]; ctx.fillRect(o.x,o.y,o.w,o.h);
+        ctx.fillStyle = cl[1]; ctx.fillRect(o.x+3,o.y+3,o.w-6,o.h-6);
+      }
+      ctx.restore();
+    });
+    
+    drawPlayer();
+    
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Скорость: ${worldSpeed.toFixed(1)}`, 8, CEILING+16);
+    ctx.fillText(`HP: ${player.hp}/${maxLives}`, 8, CEILING+30);
+    
+    if (!gameActive && gameStarted) {
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
+      ctx.fillRect(0,0,currentWorldW,currentWorldH);
+      ctx.fillStyle = '#f7da6c';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('💔 ИГРА ОКОНЧЕНА', currentWorldW/2, currentWorldH/2-25);
+      ctx.font = '16px sans-serif';
+      ctx.fillText(`Счёт: ${score} | Монеты: ${totalCoins}`, currentWorldW/2, currentWorldH/2+20);
+      ctx.font = '13px sans-serif';
+      ctx.fillText('Нажмите 🔄 для рестарта', currentWorldW/2, currentWorldH/2+50);
+    }
+  }
+  
+  if (!ctx.roundRect) {
+    ctx.roundRect = function(x,y,w,h,r) {
+      if (typeof r==='number') r={tl:r,tr:r,br:r,bl:r};
+      ctx.beginPath();
+      ctx.moveTo(x+r.tl,y); ctx.lineTo(x+w-r.tr,y);
+      ctx.quadraticCurveTo(x+w,y,x+w,y+r.tr);
+      ctx.lineTo(x+w,y+h-r.br);
+      ctx.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);
+      ctx.lineTo(x+r.bl,y+h);
+      ctx.quadraticCurveTo(x,y+h,x,y+h-r.bl);
+      ctx.lineTo(x,y+r.tl);
+      ctx.quadraticCurveTo(x,y,x+r.tl,y);
+      ctx.closePath();
+    };
+  }
+  
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+  
+  function setupEvents() {
+    const buttons = {
+      btnUp: () => { inputQueue.flap = true; },
+      btnDown: () => { inputQueue.dive = true; },
+      btnLife: buyLife,
+      btnRestart: resetGame,
+      btnShop: () => { $shop.classList.toggle('show'); if ($shop.classList.contains('show')) renderShop(); },
+      btnCloseShop: () => $shop.classList.remove('show')
+    };
+    
+    Object.entries(buttons).forEach(([id, handler]) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('pointerdown', e => { e.preventDefault(); handler(); });
+    });
+    
+    $btnBuyLife.addEventListener('pointerdown', e => { e.preventDefault(); buyLife(); });
+    $btnShopLife.addEventListener('pointerdown', e => { e.preventDefault(); buyLife(); });
+    
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault(); inputQueue.flap = true;
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault(); inputQueue.dive = true;
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault(); resetGame();
+      } else if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault(); buyLife();
       }
     });
-  `;
-
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  
-  let registration;
-  
-  navigator.serviceWorker.register(swUrl)
-    .then(reg => {
-      registration = reg;
-      console.log('Service Worker зарегистрирован');
-      
-      // Проверка обновлений Service Worker
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // Новое обновление доступно
-            showUpdateBanner();
-          }
-        });
-      });
-      
-      // Периодическая проверка обновлений
-      setInterval(() => {
-        reg.update();
-      }, 60 * 60 * 1000); // Каждый час
-    })
-    .catch(err => {
-      console.log('Service Worker не зарегистрирован:', err);
+    
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touchY = (e.touches[0].clientY - rect.top) * (currentWorldH / rect.height);
+      if (touchY < currentWorldH * 0.5) inputQueue.flap = true;
+      else inputQueue.dive = true;
+    }, { passive: false });
+    
+    canvas.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mouseY = (e.clientY - rect.top) * (currentWorldH / rect.height);
+      if (mouseY < currentWorldH * 0.5) inputQueue.flap = true;
+      else inputQueue.dive = true;
     });
-}
-
-// ─── Расширенные PWA функции ───
-
-// Отслеживание онлайн/оффлайн статуса
-function updateOnlineStatus() {
-  const indicator = document.getElementById('offlineIndicator');
-  
-  if (navigator.onLine) {
-    indicator.textContent = '✅ Онлайн';
-    indicator.className = 'offline-indicator online';
-    indicator.style.display = 'block';
-    setTimeout(() => {
-      indicator.style.display = 'none';
-    }, 2000);
-  } else {
-    indicator.textContent = '📡 Оффлайн режим';
-    indicator.className = 'offline-indicator';
-    indicator.style.display = 'block';
-  }
-}
-
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-
-// Показ баннера обновления
-function showUpdateBanner() {
-  document.getElementById('pwaUpdateBanner').style.display = 'flex';
-}
-
-// Установка обновления
-document.getElementById('btnPwaUpdate').addEventListener('click', () => {
-  if (navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-  }
-  window.location.reload();
-});
-
-document.getElementById('btnPwaUpdateDismiss').addEventListener('click', () => {
-  document.getElementById('pwaUpdateBanner').style.display = 'none';
-});
-
-// Кнопка "Поделиться" (Web Share API)
-document.getElementById('btnShare').addEventListener('click', async () => {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: 'Flappy Road',
-        text: 'Играй в Flappy Road - захватывающая аркадная игра!',
-        url: window.location.href
-      });
-    } catch (err) {
-      console.log('Ошибка шаринга:', err);
-    }
-  } else {
-    // Fallback - копирование ссылки
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => alert('Ссылка скопирована!'))
-      .catch(() => alert('Поделитесь ссылкой: ' + window.location.href));
-  }
-});
-
-// Обработка жестов для PWA (свайп для навигации)
-let touchStartX = 0;
-let touchStartY = 0;
-
-document.addEventListener('touchstart', (e) => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-document.addEventListener('touchend', (e) => {
-  const deltaX = e.changedTouches[0].clientX - touchStartX;
-  const deltaY = e.changedTouches[0].clientY - touchStartY;
-  
-  // Свайп вправо для рестарта
-  if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 100) {
-    if (!gameActive && gameStarted) {
-      resetGame();
-    }
-  }
-  
-  // Свайп влево для магазина
-  if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < -100) {
-    const shop = document.getElementById('shopOverlay');
-    shop.classList.toggle('show');
-  }
-});
-
-// Регистрация периодической фоновой синхронизации
-if ('periodicSync' in navigator.serviceWorker) {
-  navigator.serviceWorker.ready.then(registration => {
-    registration.periodicSync.register('sync-game-data', {
-      minInterval: 24 * 60 * 60 * 1000 // 1 день
+    
+    document.addEventListener('pointerdown', e => {
+      if ($shop.classList.contains('show') && !$shop.contains(e.target) && e.target.id !== 'btnShop') {
+        $shop.classList.remove('show');
+      }
     });
-  });
-}
-
-// Инициализация
-updateOnlineStatus();
-
-// Остальной ваш код игры...
+  }
+  
+  player.hp = maxLives;
+  gameActive = true;
+  resize();
+  updateUI();
+  renderShop();
+  setupEvents();
+  requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
