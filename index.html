@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
+  <!-- PWA мета-теги -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Flappy Road">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d1117">
   
+  <!-- PWA манифест -->
   <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Flappy%20Road%22%2C%22short_name%22%3A%22FlappyRoad%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22fullscreen%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%230d1117%22%2C%22theme_color%22%3A%22%230d1117%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'192'%20height%3D'192'%3E%253Crect%20width%3D'192'%20height%3D'192'%20rx%3D'40'%20fill%3D'%231a2332'%2F%3E%253Ctext%20x%3D'96'%20y%3D'120'%20font-size%3D'80'%20text-anchor%3D'middle'%3E%25F0%259F%2590%25A4%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
   
   <title>Flappy Road</title>
@@ -79,107 +81,98 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     
-    /* Кнопка установки */
+    /* Окно установки PWA */
     .install-overlay {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 50;
       pointer-events: auto;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
     .install-dialog {
       background: linear-gradient(165deg, #1e2a3a, #0f1822);
-      border-radius: 20px;
-      padding: 30px;
+      border-radius: 24px;
+      padding: 35px 25px;
       text-align: center;
-      max-width: 350px;
+      max-width: 380px;
       width: 90%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
       border: 2px solid rgba(255,255,255,0.1);
     }
     .install-icon {
-      font-size: 4rem;
+      font-size: 4.5rem;
       display: block;
       margin-bottom: 15px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
     .install-title {
       color: #f7da6c;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .install-text {
       color: #ccc;
-      font-size: 0.9rem;
-      margin-bottom: 20px;
-      line-height: 1.5;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      line-height: 1.6;
     }
     .install-buttons {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .btn-install {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      padding: 14px 24px;
-      border-radius: 30px;
+      padding: 15px 28px;
+      border-radius: 35px;
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
-      transition: 0.2s;
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
     }
     .btn-install:hover {
-      transform: scale(1.02);
+      transform: scale(1.03);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
     }
     .btn-install:active {
-      transform: scale(0.95);
+      transform: scale(0.97);
     }
-    .btn-install.downloading {
+    .btn-install.installing {
       background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
       pointer-events: none;
+      box-shadow: 0 6px 25px rgba(46, 204, 113, 0.5);
     }
     .btn-skip {
       background: transparent;
       color: #aaa;
       border: 1px solid #555;
-      padding: 10px 24px;
-      border-radius: 30px;
-      font-size: 0.9rem;
+      padding: 12px 24px;
+      border-radius: 35px;
+      font-size: 0.95rem;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
     .btn-skip:hover {
       color: #fff;
       border-color: #888;
-    }
-    .download-progress {
-      width: 100%;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      margin-top: 15px;
-      overflow: hidden;
-      display: none;
-    }
-    .download-progress.show {
-      display: block;
-    }
-    .download-progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      border-radius: 3px;
-      width: 0%;
-      transition: width 0.2s;
+      background: rgba(255,255,255,0.05);
     }
     
     .ui-layer {
@@ -277,6 +270,7 @@
       color: rgba(255,255,255,0.3); font-size: 0.8rem;
       pointer-events: none;
     }
+    /* Скрываем окно установки в standalone режиме */
     @media (display-mode: standalone) {
       .install-overlay { display: none !important; }
     }
@@ -286,24 +280,21 @@
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
   
-  <!-- Окно установки -->
+  <!-- Окно установки PWA -->
   <div class="install-overlay" id="installOverlay">
     <div class="install-dialog">
       <span class="install-icon">🐤</span>
-      <div class="install-title">Скачать Flappy Road</div>
+      <div class="install-title">Установить Flappy Road?</div>
       <div class="install-text">
-        Игра сохранится на ваш компьютер как HTML-файл. Запускайте в любое время без интернета!
+        Играйте в любое время, даже без интернета! Игра будет работать как обычное приложение на телефоне и компьютере.
       </div>
       <div class="install-buttons">
-        <button class="btn-install" id="btnDownloadApp">
-          💾 Скачать игру
+        <button class="btn-install" id="btnInstallApp">
+          📲 Установить
         </button>
-        <button class="btn-skip" id="btnSkipDownload">
+        <button class="btn-skip" id="btnSkipInstall">
           Играть в браузере
         </button>
-      </div>
-      <div class="download-progress" id="downloadProgress">
-        <div class="download-progress-bar" id="downloadProgressBar"></div>
       </div>
     </div>
   </div>
@@ -351,56 +342,11 @@
 </div>
 
 <script>
-// ─── ФУНКЦИЯ СКАЧИВАНИЯ ИГРЫ ───
-function downloadGame() {
-  const btnDownload = document.getElementById('btnDownloadApp');
-  const progressBar = document.getElementById('downloadProgressBar');
-  const progressContainer = document.getElementById('downloadProgress');
-  const installOverlay = document.getElementById('installOverlay');
-  
-  // Меняем кнопку на статус загрузки
-  btnDownload.textContent = '⏳ Загрузка...';
-  btnDownload.classList.add('downloading');
-  progressContainer.classList.add('show');
-  
-  // Имитируем прогресс загрузки
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 25;
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      progressBar.style.width = '100%';
-      
-      // Создаем и скачиваем файл
-      setTimeout(() => {
-        const gameHTML = document.documentElement.outerHTML;
-        const blob = new Blob(['<!DOCTYPE html>\n' + gameHTML], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'flappy-road.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        // Показываем успешное завершение
-        btnDownload.textContent = '✅ Скачано!';
-        setTimeout(() => {
-          installOverlay.style.display = 'none';
-        }, 1500);
-      }, 500);
-    }
-    progressBar.style.width = progress + '%';
-  }, 200);
-}
-
 // ─── PWA Service Worker ───
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swCode = `
-      const CACHE = 'flappy-v11';
+      const CACHE = 'flappy-v14';
       self.addEventListener('install', e => self.skipWaiting());
       self.addEventListener('activate', e => e.waitUntil(clients.claim()));
       self.addEventListener('fetch', e => {
@@ -417,46 +363,63 @@ if ('serviceWorker' in navigator) {
 // ─── PWA Install ───
 let deferredPrompt;
 const installOverlay = document.getElementById('installOverlay');
-const btnDownloadApp = document.getElementById('btnDownloadApp');
-const btnSkipDownload = document.getElementById('btnSkipDownload');
+const btnInstallApp = document.getElementById('btnInstallApp');
+const btnSkipInstall = document.getElementById('btnSkipInstall');
 
 // Проверяем, установлено ли уже приложение
 if (window.matchMedia('(display-mode: standalone)').matches) {
   installOverlay.style.display = 'none';
 }
 
-// Сохраняем событие установки для мобильных
+// Перехватываем событие установки
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 });
 
-// Кнопка скачивания
-btnDownloadApp.addEventListener('click', () => {
-  // Определяем устройство
-  const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
-  
-  if (isMobile && deferredPrompt) {
-    // На мобильном показываем нативный диалог PWA
+// Кнопка "Установить"
+btnInstallApp.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    btnInstallApp.textContent = '⏳ Установка...';
+    btnInstallApp.classList.add('installing');
+    btnSkipInstall.style.display = 'none';
+    
+    // Небольшая задержка для эффекта
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Показываем системный диалог PWA
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        installOverlay.style.display = 'none';
-      }
-      deferredPrompt = null;
-    });
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      installOverlay.style.display = 'none';
+    } else {
+      btnInstallApp.textContent = '📲 Установить';
+      btnInstallApp.classList.remove('installing');
+      btnSkipInstall.style.display = 'block';
+    }
+    deferredPrompt = null;
   } else {
-    // На ПК или если PWA недоступен - скачиваем HTML файл
-    downloadGame();
+    // Резервный вариант с инструкцией
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    if (isIOS) {
+      alert('📱 iOS: Нажмите кнопку "Поделиться" (↙️) и выберите "На экран «Домой»"');
+    } else if (isAndroid) {
+      alert('📱 Android: Откройте меню браузера (⋮) и выберите "Установить приложение"');
+    } else {
+      alert('💻 ПК: Нажмите на значок ⊕ в адресной строке браузера и выберите "Установить"');
+    }
   }
 });
 
-// Кнопка пропуска
-btnSkipDownload.addEventListener('click', () => {
+// Кнопка "Играть в браузере"
+btnSkipInstall.addEventListener('click', () => {
   installOverlay.style.display = 'none';
 });
 
-// Скрываем окно после установки PWA
+// Скрываем окно после установки
 window.addEventListener('appinstalled', () => {
   installOverlay.style.display = 'none';
 });
